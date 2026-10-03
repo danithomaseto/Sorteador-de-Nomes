@@ -1,0 +1,5 @@
+build
+.react-router
+coverage
+node_modules
+src/lib/api/schema.d.ts

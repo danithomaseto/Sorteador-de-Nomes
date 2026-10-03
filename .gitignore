@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+*.egg-info/
+
+# Banco local
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Node / frontend
+node_modules/
+frontend/build/
+frontend/.react-router/
+frontend/coverage/
+e2e/test-results/
+e2e/playwright-report/
+e2e/.auth/
+
+# Ambiente
+.env
+.env.*
+!.env.example
+
+# Editores / SO
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
