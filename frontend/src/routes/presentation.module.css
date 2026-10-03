@@ -1,0 +1,136 @@
+.stage {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100dvh;
+  padding: var(--space-4) clamp(var(--space-4), 4vw, var(--space-8));
+  background: var(--color-bg);
+  color: var(--color-text);
+  overflow: auto;
+}
+
+.bar,
+.footer {
+  transition: opacity var(--duration-ui) var(--ease-standard);
+}
+
+/* Controles somem após 3 s sem uso, mas voltam ao receber foco ou movimento. */
+.idle {
+  cursor: none;
+}
+
+.idle .bar,
+.idle .footer {
+  opacity: 0;
+}
+
+.idle .bar:focus-within,
+.idle .footer:focus-within {
+  opacity: 1;
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.drawName {
+  font-weight: var(--weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.roundInfo {
+  margin-right: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.main {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: var(--space-6);
+  padding-block: var(--space-6);
+}
+
+.ready {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.eyebrow {
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.title {
+  max-width: 24ch;
+  font-size: clamp(2.5rem, 7vw, 6.5rem);
+  font-weight: var(--weight-bold);
+  font-stretch: var(--stretch-expanded);
+  line-height: 1.05;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.question {
+  margin-top: var(--space-3);
+  font-size: clamp(1.5rem, 3.5vw, 3rem);
+  color: var(--color-primary);
+  font-weight: var(--weight-semibold);
+}
+
+:root[data-theme="light"] .question {
+  color: var(--color-text-muted);
+}
+
+.start {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.meta,
+.blocker {
+  font-size: clamp(1rem, 2vw, 1.375rem);
+  color: var(--color-text-muted);
+}
+
+.alert {
+  max-width: 40rem;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+}
+
+.hints {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}

@@ -91,3 +91,8 @@
     bottom: calc(5.5rem + env(safe-area-inset-bottom));
   }
 }
+
+/* No modo apresentação, notificações não aparecem para a plateia. */
+:global(:root[data-presenting]) .region {
+  display: none;
+}
