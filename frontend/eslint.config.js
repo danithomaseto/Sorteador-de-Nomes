@@ -47,6 +47,9 @@ export default defineConfig(
           message: "Proibido: nomes de participantes são exibidos sempre como texto escapado.",
         },
       ],
+      // role="list" em listas sem marcadores é intencional: o Safari/VoiceOver remove a
+      // semântica de lista quando `list-style: none` é aplicado.
+      "jsx-a11y/no-redundant-roles": ["error", { ul: ["list"], ol: ["list"] }],
       "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
       "@typescript-eslint/no-confusing-void-expression": ["error", { ignoreArrowShorthand: true }],
     },
