@@ -4,6 +4,7 @@ import "@fontsource/ibm-plex-mono/latin-500.css";
 import "./styles/global.css";
 import type { ReactNode } from "react";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import archivoLatin from "@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url";
 import { Spinner } from "./components/Spinner";
 import { ToastProvider } from "./components/Toast";
 import { SessionProvider } from "./features/session/SessionProvider";
@@ -11,7 +12,17 @@ import { AnnouncerProvider } from "./lib/a11y/Announcer";
 import { APP_NAME } from "./lib/config";
 
 export function links() {
-  return [{ rel: "icon", href: "/favicon.svg", type: "image/svg+xml" }];
+  return [
+    { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+    // Pré-carrega a fonte principal (subconjunto latino) para evitar a troca visível de fonte.
+    {
+      rel: "preload",
+      as: "font",
+      type: "font/woff2",
+      href: archivoLatin,
+      crossOrigin: "anonymous",
+    },
+  ];
 }
 
 export function Layout({ children }: { children: ReactNode }) {

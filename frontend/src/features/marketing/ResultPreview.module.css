@@ -1,0 +1,84 @@
+.figure {
+  margin: 0;
+}
+
+.ticket {
+  position: relative;
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: 0 1px 0 var(--color-border);
+}
+
+/* Picotes laterais do bilhete */
+.ticket::before,
+.ticket::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: 50%;
+  background: var(--color-bg);
+  transform: translateY(-50%);
+}
+
+.ticket::before {
+  left: -0.8rem;
+  clip-path: inset(0 0 0 50%);
+}
+
+.ticket::after {
+  right: -0.8rem;
+  clip-path: inset(0 50% 0 0);
+}
+
+.eyebrow {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  font-stretch: var(--stretch-expanded);
+}
+
+.list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--border-width) dashed var(--color-border-strong);
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-2);
+  border-bottom: var(--border-width) solid var(--color-border);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+.first {
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.position {
+  font-size: var(--text-md);
+  color: inherit;
+  opacity: 0.75;
+}
+
+.meta {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
