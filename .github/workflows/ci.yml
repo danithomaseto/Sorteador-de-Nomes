@@ -28,6 +28,10 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run mypy
+      - name: Contrato OpenAPI versionado está atualizado
+        run: |
+          uv run python -m app.cli openapi > openapi.json
+          git diff --exit-code -- openapi.json
       - run: uv run pytest --cov --cov-report=term-missing -m "not perf"
       - name: Testes de desempenho (10 a 50 mil participantes)
         run: uv run pytest -m perf -q

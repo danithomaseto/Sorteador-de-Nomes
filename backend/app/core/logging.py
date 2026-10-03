@@ -10,7 +10,7 @@ import logging
 import sys
 from contextvars import ContextVar
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, TextIO
 
 request_id_var: ContextVar[str | None] = ContextVar("request_id", default=None)
 
@@ -38,11 +38,16 @@ class JsonFormatter(logging.Formatter):
         return json.dumps(payload, ensure_ascii=False, default=str)
 
 
+class _AppHandler(logging.StreamHandler[TextIO]):
+    """Marca o handler instalado pela aplicação, para reconfigurar sem duplicar."""
+
+
 def configure_logging(level: str) -> None:
-    handler = logging.StreamHandler(sys.stdout)
+    handler = _AppHandler(sys.stdout)
     handler.setFormatter(JsonFormatter())
     root = logging.getLogger()
-    root.handlers = [handler]
+    root.handlers = [h for h in root.handlers if not isinstance(h, _AppHandler)]
+    root.addHandler(handler)
     root.setLevel(level)
     # O log de acesso do uvicorn incluiria a URL completa; usamos o nosso (sem query string).
     logging.getLogger("uvicorn.access").disabled = True
