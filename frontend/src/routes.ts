@@ -5,5 +5,6 @@ export default [
   route("como-funciona", "routes/how-it-works.tsx"),
   route("privacidade", "routes/privacy.tsx"),
   route("sorteio", "routes/draw.tsx"),
+  route("sorteio/rodadas/:number", "routes/round.tsx"),
   route("*", "routes/not-found.tsx"),
 ] satisfies RouteConfig;

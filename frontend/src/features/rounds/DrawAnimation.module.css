@@ -1,0 +1,54 @@
+.stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: var(--space-3);
+  min-height: 9rem;
+  padding: var(--space-5) var(--space-4);
+  text-align: center;
+}
+
+.name {
+  max-width: 100%;
+  font-weight: var(--weight-bold);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+  animation: tick 70ms linear;
+}
+
+.md .name {
+  font-size: clamp(1.75rem, 5vw, 3rem);
+}
+
+.xl .name {
+  font-size: var(--text-result);
+  font-stretch: var(--stretch-condensed);
+}
+
+.final {
+  padding: 0.05em 0.3em;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  animation: land 450ms var(--ease-standard);
+}
+
+.skip {
+  color: var(--color-text-muted);
+}
+
+@keyframes tick {
+  from {
+    opacity: 0.35;
+    transform: translateY(-0.15em);
+  }
+}
+
+@keyframes land {
+  from {
+    transform: scale(0.92);
+  }
+  60% {
+    transform: scale(1.04);
+  }
+}
