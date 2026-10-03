@@ -1,0 +1,86 @@
+.dropzone {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1);
+  padding: var(--space-7) var(--space-4);
+  border: 2px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-sunken);
+  text-align: center;
+  transition: border-color var(--duration-micro) var(--ease-standard);
+}
+
+.dragging {
+  border-color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.dropTitle {
+  margin-top: var(--space-2);
+  font-weight: var(--weight-semibold);
+}
+
+.dropHint {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.pick {
+  position: relative;
+  color: var(--color-text);
+  font-weight: var(--weight-semibold);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.pick:focus-within {
+  border-radius: var(--radius-sm);
+  box-shadow: var(--focus-ring);
+}
+
+/* Visualmente escondido, mas focável pelo teclado (o rótulo mostra o foco). */
+.fileInput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+}
+
+.loading > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.result {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.result[aria-busy="true"] {
+  opacity: 0.6;
+}
+
+.fileRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.fileName {
+  flex: 1;
+  min-width: 0;
+  font-weight: var(--weight-semibold);
+  overflow-wrap: anywhere;
+}

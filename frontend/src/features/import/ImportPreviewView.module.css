@@ -1,0 +1,63 @@
+.preview {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.found {
+  font-size: var(--text-md);
+}
+
+.muted {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.issues {
+  margin: 0;
+  padding-left: var(--space-4);
+}
+
+.policy {
+  margin-top: var(--space-2);
+}
+
+.tableWrap {
+  max-height: 18rem;
+  overflow: auto;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.table th {
+  position: sticky;
+  top: 0;
+  background: var(--color-surface-sunken);
+  font-weight: var(--weight-semibold);
+  text-align: left;
+}
+
+.table th,
+.table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: var(--border-width) solid var(--color-border);
+  overflow-wrap: anywhere;
+}
+
+.rowCol {
+  width: 5rem;
+}
+
+.noteCol {
+  width: 30%;
+}
+
+.note {
+  color: var(--color-text-muted);
+}

@@ -72,9 +72,22 @@
   }
 }
 
+/* Em telas estreitas, acima da barra fixa "Sortear". */
+@media (max-width: 1023px) {
+  .region {
+    bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  }
+}
+
 @media (min-width: 768px) {
   .region {
     inset: auto var(--space-6) var(--space-6) auto;
     justify-items: end;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .region {
+    bottom: calc(5.5rem + env(safe-area-inset-bottom));
   }
 }

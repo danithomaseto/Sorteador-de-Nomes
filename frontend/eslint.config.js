@@ -50,6 +50,9 @@ export default defineConfig(
       // role="list" em listas sem marcadores é intencional: o Safari/VoiceOver remove a
       // semântica de lista quando `list-style: none` é aplicado.
       "jsx-a11y/no-redundant-roles": ["error", { ul: ["list"], ol: ["list"] }],
+      // Áreas com rolagem própria precisam ser focáveis para quem usa teclado (regra do axe),
+      // desde que tenham papel "region" e um rótulo.
+      "jsx-a11y/no-noninteractive-tabindex": ["error", { roles: ["tabpanel", "region"] }],
       "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
       "@typescript-eslint/no-confusing-void-expression": ["error", { ignoreArrowShorthand: true }],
     },

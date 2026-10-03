@@ -1,0 +1,15 @@
+.form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: var(--space-2);
+}
+
+.field {
+  min-width: 0;
+}
+
+/* Alinha o botão com o campo (abaixo do rótulo). */
+.submit {
+  margin-top: calc(var(--leading-sm) + var(--space-1));
+}

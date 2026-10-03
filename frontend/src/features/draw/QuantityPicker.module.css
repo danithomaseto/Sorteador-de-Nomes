@@ -1,0 +1,11 @@
+.picker {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.error {
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  color: var(--color-error);
+  font-weight: var(--weight-medium);
+}

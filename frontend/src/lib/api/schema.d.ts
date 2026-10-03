@@ -283,13 +283,13 @@ export interface components {
              * @default auto
              * @enum {string}
              */
-            separator: "auto" | "newline" | "semicolon" | "comma";
+            separator?: "auto" | "newline" | "semicolon" | "comma";
             /**
              * Header
              * @default auto
              * @enum {string}
              */
-            header: "auto" | "yes" | "no";
+            header?: "auto" | "yes" | "no";
             /** Column */
             column?: number | null;
         };
@@ -332,7 +332,7 @@ export interface components {
              * Type
              * @default about:blank
              */
-            type: string;
+            type?: string;
             /** Title */
             title: string;
             /** Status */
@@ -345,7 +345,7 @@ export interface components {
              * Params
              * @default {}
              */
-            params: {
+            params?: {
                 [key: string]: number | string;
             };
             /** Request Id */
@@ -439,7 +439,7 @@ export interface components {
              * Type
              * @default about:blank
              */
-            type: string;
+            type?: string;
             /** Title */
             title: string;
             /** Status */
@@ -452,7 +452,7 @@ export interface components {
              * Params
              * @default {}
              */
-            params: {
+            params?: {
                 [key: string]: number | string;
             };
             /** Request Id */
@@ -461,7 +461,7 @@ export interface components {
              * Errors
              * @default []
              */
-            errors: components["schemas"]["FieldErrorOut"][];
+            errors?: components["schemas"]["FieldErrorOut"][];
         };
     };
     responses: never;
