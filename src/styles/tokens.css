@@ -158,3 +158,19 @@
   --color-overlay: rgb(0 0 0 / 0.64);
   --shadow-overlay: 0 12px 32px rgb(0 0 0 / 0.5), 0 2px 6px rgb(0 0 0 / 0.4);
 }
+
+/* Impressão sempre no tema claro (mesmo com o sistema no modo escuro), em papel branco. */
+@media print {
+  :root:not([data-print]) {
+    color-scheme: light;
+    --color-bg: #ffffff;
+    --color-page: #ffffff;
+    --color-surface: #ffffff;
+    --color-surface-sunken: #f2f1ed;
+    --color-text: #1b1a17;
+    --color-text-muted: #5f5d57;
+    --color-border: #dddad2;
+    --color-border-strong: #868379;
+    --color-on-primary: #1b1a17;
+  }
+}

@@ -79,11 +79,11 @@ export function slugify(text: string): string {
     .replace(/-+$/g, "");
 }
 
-export function exportFileName(document: ExportDocument, format: ExportFormat): string {
+export function exportFileName(document: ExportDocument, extension: ExportFormat | "png"): string {
   const base = slugify(document.drawName) || "sorteio";
   const [only] = document.rounds;
   const suffix = document.rounds.length === 1 && only ? `rodada-${String(only.number)}` : "rodadas";
-  return `${base}-${suffix}.${format}`;
+  return `${base}-${suffix}.${extension}`;
 }
 
 export const EXPORT_NOTE =

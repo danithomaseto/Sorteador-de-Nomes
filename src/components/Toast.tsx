@@ -48,7 +48,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className={styles.region} aria-live="polite" aria-relevant="additions">
+      <div className={styles.region} aria-live="polite" aria-relevant="additions" data-print="hide">
         {items.map((item) => (
           <ToastMessage key={item.id} item={item} onDismiss={dismiss} />
         ))}

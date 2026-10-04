@@ -250,3 +250,54 @@
     animation: none;
   }
 }
+
+.printNote {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+@media print {
+  .result {
+    gap: var(--space-5);
+  }
+
+  /* No papel, o palco escuro vira um quadro com borda (economiza tinta). */
+  .single {
+    --color-bg: #ffffff;
+    --color-text: #1b1a17;
+    --color-text-muted: #5f5d57;
+    --color-border: #1b1a17;
+
+    padding-block: var(--space-6);
+    break-inside: avoid;
+  }
+
+  .single::before,
+  .single::after {
+    display: none;
+  }
+
+  .singleLabel {
+    color: var(--color-text);
+  }
+
+  /* Destaques amarelos impressos como na tela. */
+  .singleName,
+  .first {
+    print-color-adjust: exact;
+  }
+
+  .singleName,
+  .winner {
+    animation: none;
+  }
+
+  .winner {
+    break-inside: avoid;
+  }
+
+  .meta {
+    border: var(--border-width) solid var(--color-border);
+    background: none;
+  }
+}

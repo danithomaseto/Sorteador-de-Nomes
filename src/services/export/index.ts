@@ -4,7 +4,9 @@ import { exportFileName, type ExportDocument, type ExportFormat } from "./docume
 import { writeTxt } from "./txt";
 import { writeXlsx } from "./xlsx";
 
+export { renderResultImage } from "./image";
 export {
+  describeAlgorithm,
   exportFileName,
   ordinal,
   type ExportDocument,

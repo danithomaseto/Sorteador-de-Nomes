@@ -9,7 +9,7 @@ import styles from "./PageLayout.module.css";
 export function PageLayout({ children }: { children: ReactNode }) {
   return (
     <div className={styles.page}>
-      <a href="#conteudo" className="skip-link">
+      <a href="#conteudo" className="skip-link" data-print="hide">
         Pular para o conteúdo
       </a>
       <SiteHeader />
@@ -23,7 +23,7 @@ export function PageLayout({ children }: { children: ReactNode }) {
 
 function SiteHeader() {
   return (
-    <header className={styles.header}>
+    <header className={styles.header} data-print="hide">
       <div className={cx("container", styles.headerInner)}>
         <Link to="/" className={styles.brand} aria-label={`${APP_NAME}, página inicial`}>
           <Logo />
@@ -55,7 +55,7 @@ function SiteHeader() {
 
 function SiteFooter() {
   return (
-    <footer className={styles.footer}>
+    <footer className={styles.footer} data-print="hide">
       <div className={cx("container", styles.footerInner)}>
         <p className={styles.privacy}>
           <Icon name="lock" size={16} />

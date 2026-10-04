@@ -16,7 +16,7 @@ test("importar, sortear e exportar sem nenhuma requisição além dos arquivos d
   await chooseFile(page, "fixtures/participantes.xlsx");
   await page.getByRole("button", { name: /^Adicionar \d+ participantes$/ }).click();
   await page.getByRole("button", { name: "Sortear 1" }).click();
-  await expect(page.getByText("Parabéns!")).toBeVisible();
+  await expect(page.getByText("Parabéns!", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Exportar" }).click();
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "CSV (.csv)" }).click();

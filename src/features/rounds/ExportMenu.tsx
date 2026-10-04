@@ -4,7 +4,14 @@ import { cx } from "~/components/cx";
 import { useToast } from "~/components/Toast";
 import type { Round } from "~/features/session/model";
 import { useSession } from "~/features/session/SessionProvider";
-import { createExport, downloadFile, type ExportFormat } from "~/services/export";
+import {
+  createExport,
+  downloadFile,
+  exportFileName,
+  renderResultImage,
+  type ExportDocument,
+  type ExportFormat,
+} from "~/services/export";
 import { userTimeZone } from "~/utils/format";
 import styles from "./ExportMenu.module.css";
 
@@ -14,6 +21,8 @@ interface ExportMenuProps {
   size?: ButtonSize;
   /** Lado em que a lista de formatos se alinha ao botão. */
   align?: "start" | "end";
+  /** Tela de uma rodada: também oferece PDF (impressão) e imagem para compartilhar. */
+  single?: boolean;
 }
 
 const FORMATS: readonly { format: ExportFormat; label: string }[] = [
@@ -28,6 +37,7 @@ export function ExportMenu({
   label = "Exportar",
   size = "md",
   align = "start",
+  single = false,
 }: ExportMenuProps) {
   const { state } = useSession();
   const toast = useToast();
@@ -50,19 +60,43 @@ export function ExportMenu({
     };
   }, [open]);
 
+  function exportDocument(): ExportDocument {
+    return { drawName: state.name, timeZone: userTimeZone(), generatedAt: new Date(), rounds };
+  }
+
   function download(format: ExportFormat) {
     setOpen(false);
     try {
-      downloadFile(
-        createExport(
-          { drawName: state.name, timeZone: userTimeZone(), generatedAt: new Date(), rounds },
-          format,
-        ),
-      );
+      downloadFile(createExport(exportDocument(), format));
       toast({ tone: "success", message: "Arquivo gerado no seu dispositivo." });
     } catch {
       toast({ tone: "error", message: "Não foi possível gerar o arquivo. Tente outro formato." });
     }
+  }
+
+  async function downloadImage() {
+    setOpen(false);
+    const [round] = rounds;
+    if (!round) return;
+    try {
+      const blob = await renderResultImage({
+        drawName: state.name,
+        round,
+        timeZone: userTimeZone(),
+      });
+      downloadFile({ blob, fileName: exportFileName(exportDocument(), "png") });
+      toast({ tone: "success", message: "Imagem gerada no seu dispositivo." });
+    } catch {
+      toast({ tone: "error", message: "Não foi possível gerar a imagem. Tente outro formato." });
+    }
+  }
+
+  function print() {
+    setOpen(false);
+    // Espera o menu fechar antes de abrir a janela de impressão.
+    window.requestAnimationFrame(() => {
+      window.print();
+    });
   }
 
   return (
@@ -80,6 +114,30 @@ export function ExportMenu({
         {label}
       </Button>
       <div id={panelId} className={cx(styles.panel, styles[align])} hidden={!open}>
+        {single ? (
+          <>
+            <Button
+              variant="ghost"
+              fullWidth
+              icon="printer"
+              className={styles.option}
+              onClick={print}
+            >
+              PDF ou impressão
+            </Button>
+            <Button
+              variant="ghost"
+              fullWidth
+              icon="image"
+              className={styles.option}
+              onClick={() => {
+                void downloadImage();
+              }}
+            >
+              Imagem (.png)
+            </Button>
+          </>
+        ) : null}
         {FORMATS.map(({ format, label: formatLabel }) => (
           <Button
             key={format}

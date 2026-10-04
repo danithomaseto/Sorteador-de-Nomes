@@ -7,7 +7,8 @@ import { NewDrawButton } from "~/features/draw/NewDrawButton";
 import type { Round } from "~/features/session/model";
 import { blockerMessage, drawBlocker } from "~/features/session/selectors";
 import { useSession } from "~/features/session/SessionProvider";
-import { ordinal } from "~/services/export";
+import { APP_NAME } from "~/config";
+import { describeAlgorithm, ordinal } from "~/services/export";
 import { useAnnounce } from "~/utils/a11y/Announcer";
 import { countLabel, formatDateTime, formatNumber } from "~/utils/format";
 import { animationSample } from "./animationSample";
@@ -87,7 +88,7 @@ export function ResultView({ round, fresh, onRevealFinished }: ResultViewProps) 
           <span className={styles.keep}>Resultado ·</span> Rodada {round.number}
         </h1>
         {state.rounds.length > 1 ? (
-          <nav aria-label="Rodadas" className={styles.roundNav}>
+          <nav aria-label="Rodadas" className={styles.roundNav} data-print="hide">
             {round.number > 1 ? (
               <Link to={`/sorteio/rodadas/${String(round.number - 1)}`}>← Rodada anterior</Link>
             ) : null}
@@ -147,7 +148,7 @@ export function ResultView({ round, fresh, onRevealFinished }: ResultViewProps) 
       ) : null}
 
       {!reveal.done && reveal.animating === null ? (
-        <div className={styles.revealActions}>
+        <div className={styles.revealActions} data-print="hide">
           <Button variant="primary" size="lg" onClick={reveal.next}>
             Revelar próximo ({reveal.revealed + 1} de {total})
           </Button>
@@ -185,10 +186,18 @@ export function ResultView({ round, fresh, onRevealFinished }: ResultViewProps) 
           </dl>
 
           {blocker && blocker.code !== "invalid_quantity" ? (
-            <p className={styles.blocker}>{blockerMessage(blocker)}</p>
+            <p className={styles.blocker} data-print="hide">
+              {blockerMessage(blocker)}
+            </p>
           ) : null}
 
-          <div className={styles.actions}>
+          <p className={cx(styles.printNote, "print-only")}>
+            Rodada realizada no navegador em {formatDateTime(round.drawnAt, true)}.{" "}
+            {describeAlgorithm(round.algorithm)} Gerado pelo {APP_NAME}: nenhum dado do sorteio foi
+            enviado a servidores.
+          </p>
+
+          <div className={styles.actions} data-print="hide">
             <div className={styles.primaryActions}>
               <Button
                 variant="primary"
@@ -211,7 +220,7 @@ export function ResultView({ round, fresh, onRevealFinished }: ResultViewProps) 
               >
                 Copiar
               </Button>
-              <ExportMenu rounds={[round]} label="Exportar" />
+              <ExportMenu rounds={[round]} label="Exportar" single />
             </div>
             <div className={styles.secondaryActions}>
               <ButtonLink to="/sorteio" variant="ghost" icon="arrow-left">

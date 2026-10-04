@@ -40,7 +40,7 @@ for (const width of [320, 768]) {
       await page.getByRole("link", { name: "Apresentar em tela cheia" }).click();
       await expect(page.getByText("Preparado?")).toBeVisible();
       await page.keyboard.press("Space");
-      await expect(page.getByText("Parabéns!")).toBeVisible();
+      await expect(page.getByText("Parabéns!", { exact: true })).toBeVisible();
       expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);
     });
   });

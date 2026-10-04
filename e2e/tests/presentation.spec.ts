@@ -10,7 +10,7 @@ test("modo apresentação: sortear pelo teclado e sair", async ({ page }) => {
   await expectAccessible(page);
 
   await page.keyboard.press("Space");
-  await expect(page.getByText("Parabéns!")).toBeVisible();
+  await expect(page.getByText("Parabéns!", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Sortear novamente" })).toBeVisible();
   await expectAccessible(page);
 

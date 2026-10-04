@@ -135,3 +135,26 @@ a:hover {
   margin: 15vh auto;
   padding: 0 var(--space-4);
 }
+
+/* Impressão / "Salvar como PDF": só o conteúdo, sem navegação, botões nem avisos. */
+.print-only {
+  display: none;
+}
+
+@media print {
+  @page {
+    margin: 16mm;
+  }
+
+  [data-print="hide"] {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  body {
+    background: #fff;
+  }
+}
