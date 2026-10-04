@@ -43,10 +43,6 @@ export class ZipArchive {
     return this.entries.has(name);
   }
 
-  names(): IterableIterator<string> {
-    return this.entries.keys();
-  }
-
   /** Conteúdo de um arquivo interno, como texto UTF-8; `null` se não existir. */
   text(name: string): string | null {
     if (!this.entries.has(name)) return null;

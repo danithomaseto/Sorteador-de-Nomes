@@ -1,235 +1,204 @@
 # Arquitetura
 
-Este documento descreve como o Sorteia é construído e por quê. As decisões estão registradas em
-[`decisions.md`](decisions.md); segurança e privacidade em [`security.md`](security.md); o contrato
-HTTP em [`api.md`](api.md).
+Como o Sorteia é construído e por quê. As decisões estão em [`decisions.md`](decisions.md);
+segurança e privacidade em [`security.md`](security.md).
 
 ## 1. Visão geral
 
-> Uma ferramenta de sorteio de nomes que qualquer pessoa usa em menos de um minuto e que um
-> organizador pode projetar num telão sem constrangimento.
+> Um sorteador de nomes que qualquer pessoa usa em menos de um minuto, que um organizador pode
+> projetar num telão — e que nunca recebe a lista de ninguém.
 
 | Princípio | Consequência técnica |
 |---|---|
-| Rápido até o primeiro sorteio | Sem cadastro, sem login, sem etapa de criação: abrir → adicionar nomes → sortear |
-| **Sem armazenamento** | Nenhum banco de dados. Nomes, arquivos, configurações, resultados e histórico existem apenas durante a sessão (a aba aberta) |
-| Confiável | Vencedores escolhidos no servidor com o gerador criptográfico do sistema operacional; horário do servidor; rodadas nunca sobrescritas |
-| Honesto | Página "Como funciona" descreve exatamente o algoritmo; nenhuma alegação de "impossível manipular" |
-| Discreto | Design system próprio, animação curta, um destaque por tela |
+| **Nada sai do navegador** | Sem backend: importação, sorteio e exportação rodam no dispositivo. A CSP (`connect-src 'none'`) proíbe o navegador de enviar dados |
+| **Nada fica guardado** | Sem banco, cookies ou armazenamento do navegador. A sessão vive na memória da aba |
+| Rápido até o primeiro sorteio | Sem cadastro nem etapa de criação: abrir → colar ou importar → sortear |
+| Confiável | Gerador criptográfico (`crypto.getRandomValues`), amostragem sem viés, rodadas que não podem ser refeitas |
+| Honesto | "Como funciona" descreve o algoritmo e os limites; nenhuma alegação de "impossível manipular" |
+| Leve | ~120 KB de JavaScript comprimido na primeira página; leitores de planilha (13 KB) carregados só quando usados |
 
-Mensagem de produto: **"Seus dados ficam apenas durante o sorteio. Não armazenamos sua lista de
-participantes nem seus resultados."**
-
-Fora do escopo do MVP: amigo secreto, divisão em times, roleta/rifa paga, contas, pagamentos, IA.
+Mensagem de produto: **"Seus dados ficam apenas no seu navegador, durante o sorteio. Não recebemos
+nem armazenamos sua lista de participantes ou seus resultados."**
 
 ## 2. Onde ficam os dados
 
 | Dado | Onde existe | Quando é descartado |
 |---|---|---|
-| Lista de participantes | memória JavaScript da aba | ao recarregar/fechar a aba ou em "Novo sorteio" |
-| Configurações e nome do sorteio | memória JavaScript da aba | idem |
-| Rodadas e histórico | memória JavaScript da aba | idem |
-| Arquivo importado (XLSX/CSV) | memória do servidor durante **uma** requisição | ao fim da requisição; nunca vai para disco |
-| Texto colado / nome digitado | memória do servidor durante uma requisição | ao fim da requisição |
-| Pedido de sorteio | servidor recebe só **tamanho da lista e quantidade** — nenhum nome | ao fim da requisição |
-| Pedido de exportação | memória do servidor durante uma requisição | ao fim da requisição; o arquivo gerado vai direto para o navegador |
+| Lista de participantes, configurações, rodadas | memória JavaScript da aba | ao recarregar/fechar a aba ou em "Novo sorteio" |
+| Arquivo importado | memória da aba e do Web Worker de importação, durante a leitura | ao montar a pré-visualização |
+| Arquivo exportado | gerado na memória da aba e entregue como download | o link temporário é revogado em 1 s |
 
-Não há banco de dados, cookies, `localStorage`, `sessionStorage` nem IndexedDB. Uma regra de lint
-proíbe essas APIs no frontend. Antes de recarregar ou fechar a aba com dados, o navegador pede
+Não há servidor de aplicação, banco, cookies, `localStorage`, `sessionStorage` nem IndexedDB (uma
+regra de lint proíbe essas APIs). Antes de recarregar ou fechar a aba com dados, o navegador pede
 confirmação.
 
 ## 3. Topologia
 
 ```
-Navegador (SPA React — estado da sessão em memória)
-   │ HTTPS, mesma origem
-   ▼
-Caddy ── /        → arquivos estáticos (/, /como-funciona e /privacidade pré-renderizadas)
-      └─ /api/*   → FastAPI (uvicorn) — sem estado, sem disco, sem banco
+                 arquivos estáticos (HTML, JS, CSS, fontes, ícones)
+Vercel (CDN) ───────────────────────────────────────────────────────▶ Navegador
+                                                                       │
+                     ┌─────────────────────────────────────────────────┤
+                     │ Aba (thread principal)                          │
+                     │  React + React Router                            │
+                     │  sessão (reducer em memória) · sorteio · exportar│
+                     │            │ postMessage (texto ou bytes)       │
+                     │            ▼                                    │
+                     │  Web Worker de importação                       │
+                     │  CSV · XLSX (fflate) · XLS (CFB + BIFF8)        │
+                     └─────────────────────────────────────────────────┘
+                     Nenhuma requisição depois do carregamento (connect-src 'none')
 ```
 
-* Frontend e API no **mesmo domínio**: sem CORS em produção. Em desenvolvimento o Vite faz proxy de
-  `/api` para `http://localhost:8000`.
-* A API não guarda estado entre requisições: qualquer processo atende qualquer requisição, sem
-  sessão "grudada".
-* **Escala.** A única memória entre requisições são os contadores do rate limit (hash do IP, por
-  minutos), que ficam no processo. Com N processos, o limite efetivo por IP chega a N vezes o
-  configurado. A imagem roda um processo, o que basta para o volume esperado (uma rodada leva
-  milissegundos; a leitura de planilhas roda fora do event loop). Para escalar horizontalmente,
-  levar o rate limit para o proxy ou para um armazenamento compartilhado de contadores com
-  expiração, sem nenhum dado de participantes.
+* As páginas públicas (`/`, `/como-funciona`, `/privacidade`) são **pré-renderizadas** no build
+  (SEO e primeira pintura rápida). As telas do sorteio (`/sorteio`, `/sorteio/rodadas/:n`,
+  `/sorteio/apresentacao`) usam o fallback da SPA.
+* A Vercel serve os arquivos com os cabeçalhos do `vercel.json`. A prévia local (`npm start`) e os
+  testes E2E leem o mesmo arquivo (`scripts/serve.mjs`), então testam a configuração de produção.
 
-### Implantação (docker compose)
-
-| Container | Imagem | Exposição | Proteções |
-|---|---|---|---|
-| `web` | `deploy/web.Dockerfile`: build do frontend + Caddy | portas 80/443 | HTTPS automático, cabeçalhos de segurança e CSP gerada no build, sem log de acesso, sem painel de administração |
-| `api` | `backend/Dockerfile`: Python 3.12 slim + uvicorn | nenhuma (só a rede interna) | usuário sem privilégios, sistema de arquivos somente leitura, sem capabilities, rede **sem acesso à internet** |
-
-O único volume é o do Caddy (certificados TLS). Nenhum container guarda dados de usuário.
-
-## 4. Camadas do backend
+## 4. Estrutura do projeto
 
 ```
-app/
-  api/            HTTP: rotas v1, limites de corpo, rate limit, cabeçalhos, tradução de erros
-    └► services/  casos de uso: interpretar texto, interpretar planilha, executar rodada, exportar
-         ├► domain/draw_engine   PURO — seleção aleatória (sem FastAPI, sem I/O)
-         ├► domain/names         PURO — normalização de nomes e chave de duplicidade
-         ├► importing/           texto | CSV | XLSX → tabela → pré-visualização
-         └► exporting/           CSV | XLSX com proteção contra injeção de fórmula
+/
+├── public/                 favicon, ícones, imagem de compartilhamento (og.png), manifest, robots
+├── scripts/
+│   ├── postbuild.mjs       CSP por hash em cada página, sitemap
+│   └── serve.mjs           prévia local do build, como na Vercel
+├── src/
+│   ├── components/         design system (botões, campos, diálogos, alertas, toasts…)
+│   ├── features/           telas e fluxos com React
+│   │   ├── draw/           configuração do sorteio, nome, quantidade
+│   │   ├── import/         colar lista, importar arquivo, revisão
+│   │   ├── participants/   adicionar, editar, excluir, lista virtualizada
+│   │   ├── rounds/         palco do sorteio, resultado, histórico, exportar
+│   │   ├── presentation/   modo apresentação (tela cheia)
+│   │   ├── session/        estado da sessão (modelo, reducer, seletores)
+│   │   └── marketing/      peças da landing
+│   ├── routes/             páginas (landing, como funciona, privacidade, sorteio…)
+│   ├── services/           lógica pura, sem React (testada à parte)
+│   │   ├── draw/           motor de sorteio e fonte de aleatoriedade
+│   │   ├── import/         leitores de texto, CSV, XLSX, XLS; pré-visualização; Worker
+│   │   ├── export/         TXT, CSV e XLSX
+│   │   └── names.ts        normalização e chave de duplicidade
+│   ├── styles/             tokens, reset, estilos globais
+│   ├── utils/              formatação, busca, anúncios para leitores de tela, SEO
+│   ├── config.ts           nome do produto, mensagens e limites
+│   └── root.tsx            documento HTML, provedores e metadados globais
+├── e2e/                    testes de ponta a ponta (Playwright) e planilhas de exemplo
+├── docs/                   arquitetura, decisões, segurança
+└── vercel.json             build, reescritas e cabeçalhos de produção
 ```
 
-**Regra de dependência:** as setas só apontam para dentro. `domain/` não importa nada do projeto nem
-de frameworks; `importing/` e `exporting/` não conhecem HTTP; `services/` orquestra; `api/` só traduz
-HTTP ↔ casos de uso.
+Regra de dependência: `services` não importa nada de React nem de `features`; `features` usa
+`services` e `components`; `routes` monta as telas.
 
-| Responsabilidade (briefing) | Onde vive |
-|---|---|
-| Dados | estado da sessão no frontend (`features/session`), contratos em `schemas/` |
-| Motor de sorteio | `backend/app/domain/draw_engine/` |
-| Interface | `frontend/` (apresentação e interação) |
-| Persistência | **nenhuma** — decisão de produto (ADR-017) |
-| Importação | `backend/app/importing/` |
-
-## 5. Fluxo de uma rodada
+## 5. Fluxo principal
 
 ```
-1. Clique em "Sortear"          o frontend congela a lista de disponíveis (n pessoas, na ordem da lista)
-2. POST /api/v1/rounds          { pool_size: n, quantity: k, allow_repeat }
-3. services.rounds              valida limites → draw_engine.draw(range(n), k, …, SecretsRandomSource)
-4. 200                          { positions: [i1, i2, …], drawn_at, algorithm, … }
-5. Frontend                     traduz posições → participantes da lista congelada; registra a rodada;
-                                marca vencedores como removidos se "remover vencedores" estiver ativo
-6. Animação                     termina sempre no vencedor real; leitores de tela recebem o resultado
+Abrir /sorteio ──▶ Colar lista │ Importar planilha │ Digitar nomes
+                         │
+                         ▼  (Web Worker: normaliza, valida, aponta repetidos)
+                  Revisão: N encontrados · repetidos ignorados (ou mantidos) · problemas por linha
+                         │  confirmar
+                         ▼
+                  Lista + configuração (quantidade, repetição, remover vencedores, exibição)
+                         │  Sortear
+                         ▼
+             Rodada registrada ──▶ Palco (rolo de nomes) ──▶ Resultado: 1º, 2º, 3º…
+                         │
+           Copiar · Exportar (TXT/CSV/XLSX) · Sortear novamente · Reiniciar · Novo sorteio
 ```
 
-* **Minimização:** o servidor não precisa de nomes para sortear, então não os recebe. O motor
-  continua genérico (recebe a lista de candidatos); a API passa a ele as posições `0..n-1`.
-* A animação usa uma amostra cosmética de até 40 nomes escolhida no navegador e só começa a
-  desacelerar depois que o resultado real chegou.
-* Se a resposta não chegar (falha de rede), nada foi registrado em lugar nenhum: o resultado nunca foi
-  visto, e tentar de novo é seguro.
+## 6. Estado da sessão
 
-## 6. Estado da sessão (frontend)
+Um reducer puro (`features/session/sessionReducer.ts`) guarda nome do sorteio, participantes,
+configuração e rodadas. Ações: adicionar, renomear, excluir/desfazer, limpar lista, restaurar
+participantes, **reiniciar** (apaga as rodadas e devolve todos), registrar rodada, novo sorteio.
 
-```ts
-type Participant = { id: string; name: string; key: string; source: Source; removedInRound: number | null };
-type Settings    = { quantity: number; allowRepeat: boolean; removeWinners: boolean; revealMode: "compact" | "sequential" };
-type Round       = { number: number; drawnAt: string; quantity: number; allowRepeat: boolean; removeWinners: boolean;
-                     totalParticipants: number; poolSize: number; availableAfter: number; algorithm: string;
-                     winners: { position: number; participantId: string; name: string }[] };
-type Session     = { name: string; participants: Participant[]; settings: Settings; rounds: Round[] };
-```
-
-* Um único reducer puro (`features/session/sessionReducer.ts`) concentra as transições: adicionar,
-  renomear, excluir, limpar, restaurar, registrar rodada, novo sorteio. Ele é testado isoladamente —
-  as regras de sessão não ficam espalhadas pelos componentes.
-* `name` e `key` (chave de duplicidade) sempre vêm do servidor (`/imports/text` ou `/imports/file`):
-  a normalização de nomes tem uma única implementação, em Python.
-* IDs de participantes: `crypto.randomUUID()`. Cada entrada é um participante distinto, mesmo com
-  nomes iguais.
-* Rodadas só são adicionadas (ADR-005). "Restaurar participantes" zera `removedInRound` de todos.
+* Cada participante tem um `id` (`crypto.randomUUID`), o nome normalizado e a chave de duplicidade.
+  Nomes iguais são participantes distintos.
+* Ao registrar uma rodada, o reducer recebe a lista congelada no clique e as posições sorteadas; as
+  rodadas só são acrescentadas, nunca editadas.
 
 ## 7. Motor de sorteio
 
-* Entrada: sequência de candidatos (qualquer tipo), quantidade, `allow_repeat`, fonte de aleatoriedade.
-* Saída: vencedores (em ordem), restantes (na ordem original), metadados (`pool_size`, `quantity`,
-  `allow_repeat`, `algorithm`).
-* Sem repetição: **Fisher–Yates parcial** sobre os índices — O(n) para copiar, O(k) para sortear.
-* Com repetição: `k` sorteios independentes e uniformes em `[0, n)`.
-* Produção: `secrets.randbelow` → `SystemRandom` → `os.urandom` (`getrandom()` no Linux), com
-  amostragem por rejeição (sem viés de módulo). Testes: `SeededRandomSource`. **A API nunca aceita
-  seed.**
+`services/draw`: `drawPositions(tamanho, quantidade, { allowRepeat, random })`.
+
+* Sem repetição: **Fisher–Yates parcial** — a cada passo `i`, troca a posição `i` com uma posição
+  uniforme em `[i, n)`; as `k` primeiras são o resultado, na ordem do sorteio.
+* Com repetição: `k` sorteios independentes e uniformes.
+* `CryptoRandomSource`: `crypto.getRandomValues` em lotes de 32 bits, com **amostragem por
+  rejeição** (descarta valores acima do maior múltiplo de `n`), sem viés de módulo.
+* O resultado registra o algoritmo (`partial-fisher-yates/1+web-crypto`), exportado nos arquivos.
 
 ## 8. Importação
 
-```
-fonte (texto | CSV | XLSX)
-  → leitura segura (limites, assinatura do arquivo, decodificação)
-  → tabela (linhas × colunas)
-  → aba / cabeçalho / coluna prováveis      ← o usuário pode trocar
-  → normalização (domain/names)
-  → classificação: válido | vazio (ignorado) | inválido (motivo) | repetido (agrupado)
-  → pré-visualização  →  o usuário decide duplicados e confirma  →  entra no estado da sessão
-```
+`services/import`, executado no Web Worker (com fallback na thread principal onde não houver Worker):
 
-* O arquivo vai como **corpo bruto** da requisição (não multipart, que gravaria arquivos temporários
-  em disco) e é lido em memória com limite de tamanho. Para trocar de aba/coluna o navegador reenvia o
-  arquivo, que só existe na memória da aba.
-* Opções viajam na query string apenas como índices e enums (`sheet=0`, `column=2`): nomes de abas e
-  de arquivos não aparecem em URLs nem em logs.
-* XLSX: assinatura ZIP + estrutura OOXML, limite de descompressão, `openpyxl` somente leitura com
-  `defusedxml`. `.xls` antigo ou planilha protegida por senha (assinatura CFB) recebem mensagem própria.
-* CSV: UTF-8 (com ou sem BOM), UTF-16 com BOM, Windows-1252 como alternativa; delimitador detectado
-  entre `;`, `,` e tab (o usuário pode trocar).
-* Texto: mais de uma linha → uma pessoa por linha; senão `;`, senão `,`. Linhas com tab são tratadas
-  como tabela (colunas coladas de uma planilha).
-* Normalização única para todas as fontes (inclusive digitação manual): Unicode NFC, remoção de
-  caracteres invisíveis e de controle, espaços colapsados, capitalização e acentos preservados,
-  1–120 caracteres.
-* Duplicados: chave sem maiúsculas, acentos e espaços extras. Nunca removidos sem decisão do usuário.
+1. **Formato pelo conteúdo**, não pela extensão: ZIP → `.xlsx`; Compound File → `.xls`; PDF,
+   imagens e compactados recebem mensagens próprias; o resto é texto (CSV).
+2. **Leitura**:
+   * texto colado: uma pessoa por linha, ou `;` ou `,`; colunas coladas de uma planilha viram tabela;
+   * CSV: UTF-8 (com ou sem BOM), UTF-16 ou Windows-1252; delimitador detectado (`;`, tab, `,`);
+   * `.xlsx`: ZIP com limites, XML sem DTD, strings compartilhadas, datas pelo formato da célula,
+     abas ocultas, resultado salvo de fórmulas;
+   * `.xls`: Compound File + BIFF8 (strings com continuações, números compactos, datas, fórmulas).
+3. **Tabela**: detecta cabeçalho ("Nome", "Aluno"… ou texto sobre coluna numérica) e a coluna de
+   nomes; a pessoa pode trocar aba, coluna e cabeçalho.
+4. **Pré-visualização**: normaliza cada valor, ignora vazios, aponta nomes longos demais e erros de
+   fórmula (`#N/A`), datas suspeitas e repetidos. A pessoa confirma antes de adicionar.
+
+Limites (`config.ts`): 50 mil participantes, arquivo de 10 MB, 80 MB descompactados, 2 milhões de
+caracteres colados, 50 colunas, leitura interrompida após 10 mil linhas vazias seguidas, 60 s de
+tempo máximo de leitura.
 
 ## 9. Exportação
 
-O navegador envia ao servidor apenas o necessário para o arquivo (nome do sorteio, rodadas
-escolhidas e seus vencedores) e recebe o CSV ou XLSX na resposta. Nada é guardado. Células que
-começam com `=`, `+`, `-`, `@`, tab ou CR são neutralizadas (injeção de fórmula). O CSV usa UTF-8 com
-BOM e `;` (padrão do Excel em português); o XLSX traz um cabeçalho legível com os metadados.
+`services/export`, na thread principal:
 
-## 10. Frontend
+* **TXT**: resultado legível para e-mail, chat ou ata.
+* **CSV**: UTF-8 com BOM e `;` (abre certo no Excel em português), uma linha por vencedor, com
+  proteção contra injeção de fórmula.
+* **XLSX**: gerado diretamente no formato Office Open XML (com `fflate`), com metadados, tabela de
+  vencedores, cabeçalho destacado e painel congelado; textos gravados como texto (nunca fórmula).
 
-```
-src/
-  root.tsx           layout HTML, provedores (sessão, anúncios, toasts), ErrorBoundary
-  routes.ts          mapa de rotas
-  routes/            telas
-  features/          session · participants · import · draw (configuração) · rounds · presentation
-  components/        design system (Button, Field, Dialog, Switch, SegmentedControl, Toast…)
-  lib/api/           tipos gerados do OpenAPI + cliente + tradução de erros
-  lib/               a11y (anúncios), formatação, configuração
-  styles/            tokens.css, reset.css, global.css
-```
+## 10. Interface
 
-* **React Router 8 (modo framework, `ssr: false`)**: SPA com as páginas públicas pré-renderizadas no
-  build (SEO sem servidor Node em produção).
-* **Estado da sessão em memória** num provedor acima das rotas: navegar entre telas mantém os dados;
-  recarregar a aba descarta.
-* **TanStack Virtual** para listas com até 50.000 nomes.
-* **openapi-typescript + openapi-fetch**: tipos gerados do contrato do backend.
-* **CSS Modules + design tokens**; HTML nativo acessível antes de qualquer biblioteca de UI.
-
-| Rota | Tela | Renderização |
-|---|---|---|
-| `/` | Landing | pré-renderizada |
-| `/como-funciona` | Transparência | pré-renderizada |
-| `/privacidade` | Privacidade e termos de uso | pré-renderizada |
-| `/sorteio` | Participantes, configuração e histórico | SPA |
-| `/sorteio/rodadas/:number` | Resultado de uma rodada | SPA |
-| `/sorteio/apresentacao` | Modo apresentação | SPA, tela cheia |
+* **Design system próprio** (CSS Modules + tokens), identidade "bilhete": tinta, amarelo e papel;
+  Archivo (com eixo de largura) e IBM Plex Mono, servidas pelo próprio site. Temas claro e escuro.
+* **Palco do sorteio**: rolo de 5 linhas com faixa central; os nomes (amostra cosmética de até 40)
+  passam rápido e desaceleram até o vencedor, já sorteado. Com "reduzir movimento", aparece parado.
+* **Lista virtualizada** (TanStack Virtual): só as linhas visíveis existem no DOM.
+* **Responsivo** de 320 px a telões; no celular, uma barra fixa "Sortear" fica sempre à mão.
+* **Acessibilidade**: HTML semântico, foco visível, diálogos nativos, anúncios para leitores de tela,
+  contraste AA verificado com axe nos testes.
 
 ## 11. Desempenho
 
-| Cenário | Meta | Como |
+| Cenário (50 mil participantes) | Tempo típico | Onde |
 |---|---|---|
-| Executar rodada com 50.000 participantes | p95 < 100 ms no servidor | requisição de poucos bytes; Fisher–Yates O(n) |
-| Importar XLSX de 50.000 linhas | < 5 s | `openpyxl` read-only em streaming |
-| Lista de 50.000 nomes na tela | rolagem fluida | virtualização (só ~30 linhas no DOM) |
-| Animação | independe do tamanho da lista | amostra de até 40 nomes |
+| Colar a lista | ~0,2 s | Web Worker |
+| Importar CSV de três colunas | ~0,3 s | Web Worker |
+| Importar `.xlsx` de três colunas | ~0,6 s | Web Worker |
+| Sortear 10 | ~0,2 ms | thread principal |
+| Embaralhar todos (50 mil vencedores) | ~3 ms | thread principal |
 
-Os testes de desempenho (`backend/tests/perf`) medem 10, 100, 1.000, 10.000 e 50.000 participantes.
+Medido em `src/services/import/performance.test.ts` e `src/services/draw/statistics.test.ts`.
 
-## 12. Preparação para o futuro
+## 12. Testes
 
-Persistência deixou de fazer parte do produto. Funcionalidades futuras que dependem de guardar dados
-(link compartilhável, histórico permanente, contas, auditoria) exigirão uma decisão explícita do
-produto, com consentimento do usuário (opt-in), e um novo ADR. O que já facilita esse caminho:
+| Camada | Ferramenta | O que cobre |
+|---|---|---|
+| Serviços | Vitest | motor (inclusive qui-quadrado), nomes, texto, CSV, XLSX, XLS, arquivos maliciosos, exportação, desempenho |
+| Estado | Vitest | reducer: adicionar, excluir, limpar, restaurar, reiniciar, rodadas |
+| Componentes | Vitest + Testing Library | área do sorteio, colar lista, duplicados, revelação |
+| Ponta a ponta | Playwright + axe-core | fluxos completos, importação real, apresentação, celular, 320/768 px, acessibilidade, CSP, nenhuma requisição de dados |
 
-| Futuro | O que já está pronto |
+## 13. Evolução
+
+| Futuro | O que já facilita |
 |---|---|
-| Sorteio verificável | `RandomSource` injetável e `algorithm` versionado em cada rodada |
-| API pública | rotas versionadas (`/api/v1`), erros RFC 9457 com `code` estável |
-| Google Sheets, outras fontes | o pipeline de importação recebe uma tabela, independente da origem |
-| PDF / imagem | escritores de exportação independentes em `exporting/` |
-| Personalização visual | design tokens em custom properties |
-| Apresentação em segunda tela | estado da sessão centralizado num reducer (sincronizável por `BroadcastChannel`, sem gravar nada) |
+| Sorteio verificável (seed publicada antes, resultado conferível depois) | `RandomSource` injetável; algoritmo versionado em cada rodada |
+| Segunda tela (apresentador + telão) | estado num reducer, sincronizável por `BroadcastChannel` sem gravar nada |
+| PDF / imagem do resultado | escritores de exportação independentes |
+| Outras fontes (Google Planilhas por link público) | o pipeline recebe uma tabela, independente da origem — mas exigiria rede (decisão de produto) |

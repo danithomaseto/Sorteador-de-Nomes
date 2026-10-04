@@ -42,11 +42,6 @@ export function formatBytes(bytes: number): string {
   return `${numbers.format(Math.max(1, Math.round(bytes / 1024)))} KB`;
 }
 
-/** Posição com zeros à esquerda, alinhada ao total: 01…10, 001…120. */
-export function formatPosition(position: number, total: number): string {
-  return String(position).padStart(Math.max(2, String(total).length), "0");
-}
-
 export function userTimeZone(): string {
   return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 }
