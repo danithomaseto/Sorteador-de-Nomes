@@ -60,7 +60,7 @@ export default function App() {
 
 export function HydrateFallback() {
   return (
-    <div style={{ display: "grid", placeItems: "center", minHeight: "60vh" }}>
+    <div className="app-loading">
       <Spinner size={28} label={`Carregando o ${APP_NAME}`} />
     </div>
   );
@@ -69,14 +69,7 @@ export function HydrateFallback() {
 /** Último recurso, se a própria raiz falhar. */
 export function ErrorBoundary() {
   return (
-    <main
-      style={{
-        maxWidth: "36rem",
-        margin: "15vh auto",
-        padding: "0 1rem",
-        fontFamily: "system-ui, sans-serif",
-      }}
-    >
+    <main className="app-crash">
       <h1>Algo deu errado</h1>
       <p>Não foi possível carregar o {APP_NAME}. Recarregue a página para começar de novo.</p>
     </main>

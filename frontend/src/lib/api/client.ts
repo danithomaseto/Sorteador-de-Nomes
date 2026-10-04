@@ -27,8 +27,13 @@ export class ApiError extends Error {
   }
 }
 
-// Mesma origem (ADR-008): caminhos relativos, sem CORS.
-const client = createClient<paths>({ baseUrl: "" });
+// Mesma origem (ADR-008): sem CORS. A origem da página vira URL absoluta (exigida fora do navegador).
+const client = createClient<paths>({
+  baseUrl: typeof window === "undefined" ? "" : window.location.origin,
+  // O fetch global é lido a cada chamada, não na importação do módulo: assim ele pode ser
+  // interceptado depois (os testes de componente simulam a API dessa forma).
+  fetch: (request) => globalThis.fetch(request),
+});
 
 interface FetchResult<T> {
   data?: T;

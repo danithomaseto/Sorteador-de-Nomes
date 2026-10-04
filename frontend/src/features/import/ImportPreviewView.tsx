@@ -111,7 +111,12 @@ export function ImportPreviewView({
         </InlineAlert>
       ) : null}
 
-      <div className={styles.tableWrap}>
+      <div
+        className={styles.tableWrap}
+        tabIndex={0}
+        role="region"
+        aria-label="Prévia dos participantes"
+      >
         <table className={styles.table}>
           <caption className="visually-hidden">Prévia dos participantes encontrados</caption>
           <thead>

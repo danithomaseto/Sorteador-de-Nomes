@@ -41,3 +41,9 @@
   margin-top: var(--space-1);
   font-size: var(--text-sm);
 }
+
+@media (max-width: 479px) {
+  .panel {
+    padding: var(--space-4);
+  }
+}

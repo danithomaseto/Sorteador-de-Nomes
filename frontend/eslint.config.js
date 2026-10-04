@@ -58,11 +58,11 @@ export default defineConfig(
     },
   },
   {
-    files: ["*.config.{js,ts}", "eslint.config.js"],
+    files: ["*.config.{js,ts}", "eslint.config.js", "scripts/**"],
     languageOptions: { globals: { ...globals.node } },
   },
   {
-    files: ["**/*.js"],
+    files: ["**/*.js", "**/*.mjs"],
     extends: [tseslint.configs.disableTypeChecked],
   },
 );

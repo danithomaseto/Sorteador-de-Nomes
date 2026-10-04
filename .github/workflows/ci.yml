@@ -71,3 +71,41 @@ jobs:
       - run: npm audit --omit=dev --audit-level=high
         working-directory: frontend
 
+
+  e2e:
+    name: E2E (fluxos completos, acessibilidade, CSP)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.22"
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            e2e/package-lock.json
+      - run: uv sync --frozen
+        working-directory: backend
+      - name: Build de produção do frontend (com a CSP gerada)
+        run: npm ci && npm run build
+        working-directory: frontend
+      - run: npm ci
+        working-directory: e2e
+      - run: npm run typecheck && npm run format:check
+        working-directory: e2e
+      - run: npx playwright install --with-deps chromium
+        working-directory: e2e
+      # Sobe a API (uvicorn) e o servidor estático com os cabeçalhos de produção (e2e/server.mjs).
+      - run: npx playwright test
+        working-directory: e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            e2e/playwright-report
+            e2e/test-results
+          retention-days: 7

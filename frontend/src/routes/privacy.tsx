@@ -50,7 +50,12 @@ export default function Privacy() {
 
         <section className={styles.section} aria-labelledby="dados">
           <h2 id="dados">O que acontece com os dados</h2>
-          <div className={styles.tableWrap}>
+          <div
+            className={styles.tableWrap}
+            tabIndex={0}
+            role="region"
+            aria-label="O que acontece com os dados"
+          >
             <table className={styles.table}>
               <thead>
                 <tr>

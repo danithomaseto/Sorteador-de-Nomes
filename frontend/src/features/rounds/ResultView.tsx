@@ -66,7 +66,8 @@ export function ResultView({ round, fresh, onRevealFinished }: ResultViewProps) 
       <header className={styles.header}>
         <p className={styles.eyebrow}>{state.name}</p>
         <h1 id="resultado-titulo" ref={headingRef} tabIndex={-1} className={styles.title}>
-          Resultado · Rodada {round.number}
+          {/* Em telas estreitas a quebra fica depois do ponto, não antes. */}
+          <span className={styles.keep}>Resultado ·</span> Rodada {round.number}
         </h1>
         <nav aria-label="Rodadas" className={styles.roundNav}>
           {round.number > 1 ? (

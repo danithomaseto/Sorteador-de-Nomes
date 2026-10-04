@@ -1,9 +1,20 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
-import { afterEach } from "vitest";
+import { afterAll, afterEach, beforeAll } from "vitest";
+import { server } from "./server";
+
+beforeAll(() => {
+  // Qualquer chamada sem simulação falha o teste (nada sai para a rede).
+  server.listen({ onUnhandledFrame: "error" });
+});
 
 afterEach(() => {
   cleanup();
+  server.resetHandlers();
+});
+
+afterAll(() => {
+  server.close();
 });
 
 // O jsdom não implementa <dialog> modal: comportamento mínimo para os testes.
@@ -16,3 +27,42 @@ if (typeof HTMLDialogElement.prototype.showModal !== "function") {
     this.dispatchEvent(new Event("close"));
   };
 }
+
+// Testes rodam com "reduzir movimento": a animação do sorteio termina imediatamente.
+window.matchMedia = (query: string) =>
+  ({
+    matches: query.includes("reduce"),
+    media: query,
+    onchange: null,
+    addEventListener: () => undefined,
+    removeEventListener: () => undefined,
+    addListener: () => undefined,
+    removeListener: () => undefined,
+    dispatchEvent: () => false,
+  }) as MediaQueryList;
+
+// O jsdom não calcula layout (todo elemento mede 0 px) e a lista virtualizada não mostraria
+// nenhuma linha. Aqui a área de rolagem tem tamanho de tela e cada linha medida (data-index), a
+// altura de uma linha real.
+Object.defineProperties(HTMLElement.prototype, {
+  offsetWidth: { configurable: true, get: () => 640 },
+  offsetHeight: {
+    configurable: true,
+    get(this: HTMLElement) {
+      return this.dataset.index === undefined ? 480 : 52;
+    },
+  },
+});
+
+// A lista virtualizada usa ResizeObserver, ausente no jsdom.
+globalThis.ResizeObserver = class {
+  observe() {
+    return undefined;
+  }
+  unobserve() {
+    return undefined;
+  }
+  disconnect() {
+    return undefined;
+  }
+};

@@ -37,7 +37,7 @@ Garantias no código:
 | Ameaça | Mitigação |
 |---|---|
 | Vazamento de dados no servidor | Não há dados persistidos; logs sem conteúdo (ver §4) |
-| XSS (nome malicioso como `<script>`) | React escapa todo texto; lint proíbe `dangerouslySetInnerHTML`; CSP estrita no site (`script-src 'self'`, sem inline) e `default-src 'none'` na API |
+| XSS (nome malicioso como `<script>`) | React escapa todo texto; lint proíbe `dangerouslySetInnerHTML`; CSP estrita no site (sem `unsafe-inline`: só scripts do próprio domínio e os embutidos do build, por hash) e `default-src 'none'` na API |
 | Injeção de fórmula em planilha exportada | CSV: apóstrofo antes de `= + - @`, tab e CR (OWASP). XLSX: células de texto gravadas com tipo string explícito |
 | Planilha maliciosa (zip bomb, XML bomb, XXE) | Assinatura e estrutura verificadas antes de abrir; limite de 50 MB descompactado (o `zipfile` nunca entrega mais que o tamanho declarado); `openpyxl` somente leitura com `defusedxml`; limites de linhas, colunas e linhas vazias seguidas; qualquer falha do parser vira erro amigável |
 | Arquivo de outro tipo renomeado | O conteúdo decide o formato; PDF, imagens, `.ods`, `.docx` e `.xls` recebem mensagens próprias |
@@ -55,10 +55,30 @@ API (todas as respostas): `X-Content-Type-Options: nosniff`, `Referrer-Policy: n
 `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'` (exceto `/api/docs`, desligado
 em produção).
 
-Site (Caddy, em produção): `Strict-Transport-Security`, CSP com `default-src 'self'` e
-`script-src 'self'`, `Permissions-Policy` restritiva (com `fullscreen=(self)` e
-`screen-wake-lock=(self)` para o modo apresentação), `Referrer-Policy: no-referrer`,
-`X-Content-Type-Options: nosniff`. Ver `deploy/Caddyfile`.
+Site (Caddy, em produção): `Strict-Transport-Security`, `Permissions-Policy` restritiva (com
+`fullscreen=(self)` e `screen-wake-lock=(self)` para o modo apresentação),
+`Referrer-Policy: no-referrer`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` e a CSP
+abaixo. Ver `deploy/Caddyfile`.
+
+### Content-Security-Policy do site
+
+```
+default-src 'self'; script-src 'self' 'sha256-…'; style-src 'self'; img-src 'self';
+font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self';
+frame-ancestors 'none'; manifest-src 'self'; worker-src 'self'
+```
+
+* O React Router coloca alguns scripts pequenos dentro do HTML pré-renderizado (dados de hidratação
+  e restauração de rolagem). Em vez de liberar `'unsafe-inline'`, o build
+  (`frontend/scripts/csp.mjs`, executado por `npm run build`) calcula o SHA-256 de cada um e só
+  esses ficam permitidos. A política sai em `frontend/build/csp.caddy` (importada pelo Caddy) e
+  `frontend/build/csp.txt`; ela muda a cada build, por isso é gerada e nunca escrita à mão.
+* `style-src 'self'` sem exceções: o build falha se o HTML gerado tiver atributo `style`. Estilos
+  aplicados pelo React em tempo de execução (CSSOM) não são afetados pela CSP.
+* Tudo é servido pelo próprio domínio: fontes auto-hospedadas, nenhuma CDN, nenhum script de
+  terceiros, `connect-src 'self'` (o navegador só conversa com a própria API).
+* Os testes E2E rodam contra o build de produção servido com essa mesma CSP
+  (`e2e/server.mjs`); qualquer violação ou exceção na página reprova o teste.
 
 ## 4. Logs (observabilidade sem dados pessoais)
 

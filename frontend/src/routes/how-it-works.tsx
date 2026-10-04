@@ -75,7 +75,12 @@ export default function HowItWorks() {
 
         <section className={styles.section} aria-labelledby="regras">
           <h2 id="regras">As regras de cada rodada</h2>
-          <div className={styles.tableWrap}>
+          <div
+            className={styles.tableWrap}
+            tabIndex={0}
+            role="region"
+            aria-label="Regras de cada rodada"
+          >
             <table className={styles.table}>
               <thead>
                 <tr>

@@ -20,6 +20,10 @@
   outline: none;
 }
 
+.keep {
+  white-space: nowrap;
+}
+
 .roundNav {
   display: flex;
   gap: var(--space-5);

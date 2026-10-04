@@ -13,3 +13,14 @@
 .submit {
   margin-top: calc(var(--leading-sm) + var(--space-1));
 }
+
+/* Em telas muito estreitas, o botão desce para a linha de baixo e o campo ocupa a largura toda. */
+@media (max-width: 359px) {
+  .form {
+    grid-template-columns: 1fr;
+  }
+
+  .submit {
+    margin-top: 0;
+  }
+}

@@ -67,3 +67,9 @@
   transform: translateY(-50%);
   color: var(--color-text-muted);
 }
+
+@media (max-width: 479px) {
+  .panel {
+    padding: var(--space-4);
+  }
+}

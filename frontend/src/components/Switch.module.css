@@ -4,9 +4,11 @@
   gap: var(--space-1);
 }
 
+/* O input nativo (invisível) fica por cima da trilha: recebe o clique e o foco diretamente. */
 .input {
   position: absolute;
   inset: 0 auto auto 0;
+  z-index: 1;
   width: 2.75rem;
   height: 1.5rem;
   margin: 0;
