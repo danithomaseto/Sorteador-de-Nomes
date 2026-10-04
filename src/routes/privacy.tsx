@@ -26,7 +26,7 @@ const DATA_ROWS = [
   ["Texto colado ou nome digitado", "Na memória do seu navegador", "Até você fechar a página"],
   ["Sorteio", "Feito no seu navegador, com o gerador criptográfico do dispositivo", "—"],
   [
-    "Arquivo exportado (Excel, CSV ou texto)",
+    "Arquivo exportado (Excel, CSV, texto, PDF ou imagem)",
     "Gerado no seu navegador e salvo no seu dispositivo",
     "Fica com você",
   ],
@@ -91,6 +91,10 @@ export default function Privacy() {
             </li>
             <li>
               Fontes e arquivos do site são servidos pelo próprio site, sem serviços de terceiros.
+            </li>
+            <li>
+              O telão (segunda janela do modo apresentação) recebe o que aparece na tela pelo
+              próprio navegador, de uma janela para a outra, sem passar pela internet.
             </li>
           </ul>
         </section>

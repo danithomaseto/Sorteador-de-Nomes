@@ -39,12 +39,14 @@ segurança das páginas proíbe o próprio navegador de enviar dados para qualqu
   * Respeita "reduzir movimento".
 * **Resultados**
   * Sortear novamente, copiar, exportar em TXT, CSV ou Excel.
+  * Salvar em PDF (pela impressão do navegador, só com o resultado) ou como imagem PNG para compartilhar.
   * Histórico de rodadas da sessão.
   * Reiniciar o sorteio (mantém a lista) ou começar um novo.
 * **Modo apresentação**
   * Tela cheia para telão, com temas claro e escuro.
   * Atalhos: Espaço sorteia, F alterna tela cheia, Esc sai.
   * Mantém a tela acesa.
+  * **Telão em segunda janela:** "Abrir telão" leva o palco para outra janela (arraste para o projetor); quem apresenta controla pelo notebook. A sincronização é feita pelo próprio navegador, sem rede.
 * **Páginas públicas**
   * Apresentação do produto, "Como funciona o sorteio" e "Privacidade e termos de uso".
   * Pré-renderizadas, com metadados para buscadores e redes sociais.
@@ -155,7 +157,7 @@ Pela linha de comando: `npx vercel` (prévia) e `npx vercel --prod` (produção)
 
 **Testes de ponta a ponta (Playwright):**
 * rodam contra o build de produção servido como na Vercel;
-* fluxos completos, acessibilidade e celular;
+* fluxos completos, exportações, telão em segunda janela, acessibilidade e celular;
 * provam que nenhuma requisição de dados sai da página.
 
 O CI (`.github/workflows/ci.yml`) roda tudo isso a cada pull request.
@@ -186,12 +188,16 @@ As principais estão em [docs/decisions.md](docs/decisions.md):
 * **ADR-024:** duplicados ignorados por padrão, com escolha.
 * **ADR-025:** hospedagem estática e CSP embutida com `connect-src 'none'`.
 * **ADR-026:** experiência do sorteio.
+* **ADR-027:** PDF pela impressão do navegador e imagem PNG desenhada em canvas.
+* **ADR-028:** telão em segunda janela, sincronizado por `BroadcastChannel`.
+* **ADR-029:** por que não há "sorteio verificável" (ainda).
 
 ## Privacidade dos dados
 
 * Os nomes e os arquivos são lidos e processados **no navegador**; o sorteio e a exportação também.
 * **Nada é enviado.** A CSP das páginas (`connect-src 'none'`) faz o navegador recusar qualquer envio, inclusive de código de terceiros, e um teste automatizado comprova isso.
 * **Nada é guardado.** Não há banco, cookies nem `localStorage`: recarregar ou fechar a página apaga a lista e os resultados. O navegador pede confirmação antes.
+* O telão recebe só o que já está na tela, de uma janela para a outra, dentro do navegador (`BroadcastChannel`): não passa pela rede nem grava nada.
 * A hospedagem registra dados técnicos de acesso (IP, navegador), como em qualquer site; esses registros nunca incluem nomes ou arquivos.
 
 Mais em [docs/security.md](docs/security.md) e na página `/privacidade` do site.
@@ -206,5 +212,6 @@ Mais em [docs/security.md](docs/security.md) e na página `/privacidade` do site
   * Fórmulas valem pelo último resultado salvo no arquivo. Arquivos gerados por programas que não calculam fórmulas aparecem com essas células vazias.
   * Não são aceitas planilhas protegidas por senha, `.ods`, `.xlsb` e arquivos do Excel 95 ou anteriores. Cada caso tem uma mensagem explicando como converter.
 * **Tamanho:** até 10 MB por arquivo e 50 mil participantes. Arquivos grandes dependem da memória do dispositivo.
+* **Telão:** funciona com as duas janelas no mesmo navegador e no mesmo computador (o projetor como segunda tela). Telão em outro aparelho exigiria um servidor para repassar a cena, o que contraria a regra de não enviar dados.
 * **Navegadores:** versões atuais do Chrome, Edge, Firefox e Safari, com JavaScript ativado.
 * **Antes de abrir ao público:** a política de privacidade e os termos precisam de revisão jurídica, e o nome "Sorteia" precisa de busca de marca e de domínio (checklist em [docs/security.md](docs/security.md)).

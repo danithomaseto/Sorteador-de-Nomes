@@ -16,7 +16,8 @@ dispositivo da pessoa (ADR-022).
 | Lista de participantes, configurações, rodadas, histórico | memória JavaScript da aba | até recarregar/fechar a aba ou clicar em "Novo sorteio" |
 | Arquivo importado (.xlsx, .xls, .csv) | memória da aba e do Web Worker de importação | até montar a pré-visualização |
 | Texto colado, nome digitado | memória da aba | até fechar a página |
-| Arquivo exportado | gerado na aba e salvo pelo navegador no dispositivo | fica com a pessoa |
+| Arquivo exportado (TXT, CSV, XLSX, PDF pela impressão, PNG) | gerado na aba e salvo pelo navegador no dispositivo | fica com a pessoa |
+| Cena do telão (nome do sorteio, vencedores na tela, amostra da animação) | memória das duas janelas; passa de uma à outra por `BroadcastChannel`, dentro do navegador | até fechar as janelas |
 | Dados técnicos de acesso (IP, navegador, página) | registros da hospedagem (Vercel), como em qualquer site | conforme a política da hospedagem; **nunca** incluem nomes ou arquivos |
 
 Não existem: servidor de aplicação, banco de dados, cookies, `localStorage`, `sessionStorage`,
@@ -48,6 +49,7 @@ Garantias no código:
 | Arquivo ou texto gigantes travando a aba | Limites: 10 MB por arquivo, 2 milhões de caracteres colados, 50 mil participantes, 50 colunas; leitura num Web Worker com tempo máximo de 60 s (o Worker é encerrado) |
 | Resultado previsível | `crypto.getRandomValues` (CSPRNG do sistema) com amostragem por rejeição; nunca `Math.random` no sorteio. A amostra de nomes da animação usa `Math.random`, mas não decide nada |
 | Clickjacking | `X-Frame-Options: DENY` e `frame-ancestors 'none'` (cabeçalhos) |
+| Telão recebendo mensagens de outra origem | `BroadcastChannel` só conecta janelas da mesma origem no mesmo navegador; o nome do canal é aleatório por aba e fica no fragmento do endereço (nunca enviado ao servidor); mensagens fora do protocolo são ignoradas. O telão não tem dados próprios: só desenha a cena recebida |
 | Dependências vulneráveis | Uma dependência de execução nova (`fflate`, sem dependências próprias); `npm audit` no CI; versões fixadas no lockfile |
 
 ## 3. Cabeçalhos (vercel.json)
@@ -85,6 +87,9 @@ object-src 'none'; base-uri 'none'; form-action 'none'
   "comprovadamente justo" nem "impossível de manipular": quem organiza controla a lista e o
   dispositivo, e o serviço, por não receber nada, não consegue atestar um resultado depois. A
   exportação (com horário e regras) é o registro sob controle da própria pessoa.
+* Pelo mesmo motivo não há "sorteio verificável" com semente publicada: sem um terceiro que fixe o
+  compromisso antes do sorteio, quem organiza poderia testar sementes até obter o resultado
+  desejado, e a função prometeria mais do que garante (ADR-029).
 
 ## 5. LGPD — pontos para a validação jurídica
 

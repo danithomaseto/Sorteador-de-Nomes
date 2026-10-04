@@ -66,7 +66,7 @@ const FEATURES: { icon: IconName; title: string; text: string }[] = [
   {
     icon: "monitor",
     title: "Modo apresentação",
-    text: "Tela cheia para telão, TV ou projetor, com revelação um a um e atalhos de teclado.",
+    text: "Tela cheia para telão, TV ou projetor, com revelação um a um e atalhos de teclado. O telão pode abrir numa segunda janela enquanto você controla pelo notebook.",
   },
 ];
 

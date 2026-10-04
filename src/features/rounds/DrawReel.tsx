@@ -23,6 +23,8 @@ interface DrawReelProps {
   label?: string;
   pace?: Pace;
   size?: "md" | "xl";
+  /** Sem o botão "Pular animação" (ex.: no telão, que só acompanha o modo apresentação). */
+  skippable?: boolean;
   onDone: () => void;
 }
 
@@ -52,6 +54,7 @@ export function DrawReel({
   label = "Sorteando",
   pace = "normal",
   size = "md",
+  skippable = true,
   onDone,
 }: DrawReelProps) {
   const stripRef = useRef<HTMLOListElement>(null);
@@ -135,15 +138,17 @@ export function DrawReel({
       <p className="visually-hidden" role="status">
         {landed ? "" : "Sorteando…"}
       </p>
-      <Button
-        variant="ghost"
-        size="sm"
-        className={cx(styles.skip, landed && styles.hidden)}
-        tabIndex={landed ? -1 : undefined}
-        onClick={skip}
-      >
-        Pular animação
-      </Button>
+      {skippable ? (
+        <Button
+          variant="ghost"
+          size="sm"
+          className={cx(styles.skip, landed && styles.hidden)}
+          tabIndex={landed ? -1 : undefined}
+          onClick={skip}
+        >
+          Pular animação
+        </Button>
+      ) : null}
     </div>
   );
 }

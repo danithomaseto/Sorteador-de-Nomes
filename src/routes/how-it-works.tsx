@@ -159,8 +159,8 @@ export default function HowItWorks() {
             </li>
             <li>
               Como nada é guardado nem enviado, o serviço não consegue confirmar um resultado
-              depois. O registro é o arquivo que você exportar (Excel, CSV ou texto), com a data, a
-              hora e as regras de cada rodada.
+              depois. O registro é o arquivo que você exportar (Excel, CSV, texto ou PDF), com a
+              data, a hora e as regras de cada rodada.
             </li>
             <li>
               Quem organiza controla a lista e pode fazer quantas rodadas quiser. Para sorteios com

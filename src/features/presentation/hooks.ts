@@ -128,7 +128,8 @@ export function usePrimaryKey(action: (() => void) | null) {
 
 interface StageShortcuts {
   onFullscreen: () => void;
-  onExit: () => void;
+  /** Sem `onExit` (ex.: no telão), o Esc fica só com o navegador. */
+  onExit?: () => void;
   fullscreenActive: boolean;
 }
 
@@ -140,7 +141,7 @@ export function useStageShortcuts({ onFullscreen, onExit, fullscreenActive }: St
       const target = event.target as HTMLElement | null;
       if (target?.closest("input, select, textarea")) return;
       if (event.key === "f" || event.key === "F") onFullscreen();
-      else if (event.key === "Escape" && !fullscreenActive) onExit();
+      else if (event.key === "Escape" && !fullscreenActive) onExit?.();
     };
     document.addEventListener("keydown", onKey);
     return () => {

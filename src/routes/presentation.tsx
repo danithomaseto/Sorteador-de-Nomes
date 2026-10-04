@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { Button, ButtonLink } from "~/components/Button";
 import { cx } from "~/components/cx";
@@ -13,11 +13,15 @@ import {
   useWakeLock,
 } from "~/features/presentation/hooks";
 import { PresentationRound } from "~/features/presentation/PresentationRound";
+import type { StageScene as Scene } from "~/features/presentation/scene";
+import { useScreenController, type ScreenView } from "~/features/presentation/screen";
+import { StageScene } from "~/features/presentation/StageScene";
+import styles from "~/features/presentation/StageFrame.module.css";
 import { useDrawRound } from "~/features/rounds/useDrawRound";
 import { blockerMessage, drawBlocker, sessionStats } from "~/features/session/selectors";
 import { useSession } from "~/features/session/SessionProvider";
+import { useToast } from "~/components/Toast";
 import { countLabel, formatNumber } from "~/utils/format";
-import styles from "./presentation.module.css";
 import { pageMeta } from "~/utils/seo";
 
 export { RouteErrorBoundary as ErrorBoundary } from "~/components/layout/RouteErrorBoundary";
@@ -41,6 +45,8 @@ export default function PresentationPage() {
   const [roundNumber, setRoundNumber] = useState<number | null>(null);
   const [finished, setFinished] = useState(false);
   const [roundPrimary, setRoundPrimary] = useState<Primary>({ action: null, label: null });
+  const [roundScene, setRoundScene] = useState<Scene | null>(null);
+  const toast = useToast();
   usePresentationDocument(theme);
   useWakeLock();
 
@@ -72,6 +78,24 @@ export default function PresentationPage() {
   const showStart = !round || finished;
   const primary = round && !finished ? roundPrimary.action : blocker === null ? startDraw : null;
   usePrimaryKey(primary);
+
+  const prepared = stats.total > 0;
+  const readyScene = useMemo<Scene>(() => ({ phase: "ready", prepared }), [prepared]);
+  const scene = (round ? roundScene : null) ?? readyScene;
+  const view = useMemo<ScreenView>(
+    () => ({ drawName: state.name, theme, scene }),
+    [scene, state.name, theme],
+  );
+  const screen = useScreenController(view, primary);
+  const openScreen = useCallback(() => {
+    if (!screen.open()) {
+      toast({
+        message:
+          "O navegador bloqueou a janela do telão. Permita pop-ups para este site e tente de novo.",
+        tone: "error",
+      });
+    }
+  }, [screen, toast]);
   useStageShortcuts({
     onFullscreen: fullscreen.toggle,
     onExit: exit,
@@ -82,6 +106,7 @@ export default function PresentationPage() {
     <p className={styles.hints}>
       <Kbd>Espaço</Kbd> {round && !finished ? "revelar" : "sortear"} · <Kbd>F</Kbd> tela cheia ·{" "}
       <Kbd>Esc</Kbd> sair
+      {screen.connected ? " · o telão acompanha esta tela" : null}
     </p>
   );
 
@@ -97,6 +122,15 @@ export default function PresentationPage() {
             <span className={styles.roundInfo}>
               {countLabel(state.rounds.length, "rodada", "rodadas")}
             </span>
+          ) : null}
+          {/* Região de status sempre presente, para o leitor de tela anunciar a conexão. */}
+          <span role="status" className={screen.connected ? styles.connected : "visually-hidden"}>
+            {screen.connected ? "Telão conectado" : ""}
+          </span>
+          {screen.supported && !screen.connected ? (
+            <Button variant="ghost" size="sm" icon="external" onClick={openScreen}>
+              Abrir telão
+            </Button>
           ) : null}
           <Button
             variant="ghost"
@@ -131,18 +165,14 @@ export default function PresentationPage() {
           <PresentationRound
             key={round.number}
             round={round}
+            drawName={state.name}
             onPrimaryChange={onPrimaryChange}
+            onSceneChange={setRoundScene}
             onFinished={onFinished}
           />
-        ) : null}
-
-        {!round ? (
-          <div className={styles.ready}>
-            <p className={styles.eyebrow}>Sorteio</p>
-            <p className={styles.title}>{state.name}</p>
-            {stats.total > 0 ? <p className={styles.question}>Preparado?</p> : null}
-          </div>
-        ) : null}
+        ) : (
+          <StageScene scene={scene} drawName={state.name} />
+        )}
 
         {showStart ? (
           <div className={styles.start}>

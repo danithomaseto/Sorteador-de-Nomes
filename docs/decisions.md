@@ -271,3 +271,48 @@ nunca a lista inteira) que desacelera e para no vencedor já sorteado, seguido d
 resultado ("Vencedor" e "Parabéns!") ou da lista em ordem (1º, 2º, 3º). Com "reduzir movimento"
 ativado no sistema, o rolo aparece parado. A animação nunca decide nada: o resultado é registrado
 antes de ela começar.
+
+## ADR-027 — PDF pela impressão do navegador; imagem em canvas
+
+**Contexto.** Pedidos de "salvar o resultado em PDF" e de uma imagem para mandar no grupo.
+Bibliotecas de PDF (jsPDF, pdf-lib) somam de 100 a 350 KB e precisariam embutir as fontes.
+**Decisão.** O PDF sai da impressão do navegador: a tela da rodada tem estilos de impressão (só o
+resultado, sempre no tema claro, com data, método e aviso de privacidade) e o item "PDF ou
+impressão" chama `window.print()`; todos os navegadores atuais oferecem "Salvar como PDF". A imagem
+PNG (1200 × 675, desenhada em 2×) é feita num `<canvas>` com as fontes que a página já carregou.
+**Consequências.** Nenhuma dependência nova e nenhum envio. O PDF depende da caixa de impressão do
+navegador (margens e cabeçalhos do navegador ficam a critério da pessoa). A imagem lista até 12
+vencedores ("e mais N"); a lista completa fica no Excel, CSV, texto ou PDF.
+
+## ADR-028 — Telão em segunda janela, sincronizado por BroadcastChannel
+
+**Contexto.** Em eventos, quem apresenta quer controlar pelo notebook enquanto o projetor mostra só
+o palco. A regra de privacidade proíbe enviar dados a servidores, e o pedido proíbe armazenamento.
+**Decisão.** "Abrir telão" abre `/sorteio/telao` numa janela separada (o projetor como segunda tela
+do mesmo computador). A sincronização usa `BroadcastChannel`, que troca mensagens entre janelas do
+mesmo site no mesmo navegador, sem rede e sem gravar nada; o nome do canal é aleatório por aba e vai
+no fragmento do endereço (`#…`), que o navegador nunca envia ao servidor. O modo apresentação
+continua sendo a única fonte do estado: ele descreve o palco como uma cena serializável e o telão só
+a desenha — com o mesmo componente, girando o próprio rolo. Mensagens fora do protocolo são
+ignoradas.
+**Alternativas.** `window.opener.postMessage` (equivalente, mas perde a conexão se o modo
+apresentação for reaberto); telão em outro aparelho (exigiria um servidor de retransmissão:
+descartado pela regra de não enviar dados); `localStorage` com evento `storage` (grava dados:
+descartado).
+**Consequências.** Funciona nos navegadores atuais (Safari 15.4+), sem dependência e sem mudança na
+CSP. Telão em outro aparelho continua fora do escopo.
+
+## ADR-029 — Sem "sorteio verificável" por enquanto
+
+**Contexto.** Foi avaliado um sorteio "verificável": publicar antes um compromisso (hash de uma
+semente) e, depois, a semente, para qualquer pessoa refazer o sorteio e conferir o resultado.
+**Decisão.** Não implementar agora. Sem um terceiro que fixe o momento do compromisso (um servidor
+com registro público, um cartório, uma fonte pública de aleatoriedade com data), quem organiza pode
+gerar sementes em segredo até obter o resultado desejado e só então "publicar" o compromisso. A
+função entregaria uma aparência de garantia que ela não dá — contra a regra de comunicação honesta
+(ADR-004, `docs/security.md` §4). Um terceiro confiável exigiria rede ou processo fora do site.
+**Consequências.** A transparência continua vindo do sorteio feito na frente do público (modo
+apresentação e telão), das rodadas numeradas que não podem ser refeitas e da exportação com data,
+hora, regras e método. O motor já aceita uma fonte de aleatoriedade injetável e registra o algoritmo
+em cada rodada; se um dia houver um terceiro confiável (ex.: beacon público de aleatoriedade), a
+função pode ser adicionada sem mudar o motor.

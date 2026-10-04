@@ -27,6 +27,7 @@ nem armazenamos sua lista de participantes ou seus resultados."**
 | Lista de participantes, configurações, rodadas | memória JavaScript da aba | ao recarregar/fechar a aba ou em "Novo sorteio" |
 | Arquivo importado | memória da aba e do Web Worker de importação, durante a leitura | ao montar a pré-visualização |
 | Arquivo exportado | gerado na memória da aba e entregue como download | o link temporário é revogado em 1 s |
+| Cena do telão (nome do sorteio, vencedores na tela, amostra da animação) | memória das duas janelas; passa de uma para a outra pelo `BroadcastChannel` do navegador | ao fechar as janelas |
 
 Não há servidor de aplicação, banco, cookies, `localStorage`, `sessionStorage` nem IndexedDB (uma
 regra de lint proíbe essas APIs). Antes de recarregar ou fechar a aba com dados, o navegador pede
@@ -52,7 +53,7 @@ Vercel (CDN) ──────────────────────�
 
 * As páginas públicas (`/`, `/como-funciona`, `/privacidade`) são **pré-renderizadas** no build
   (SEO e primeira pintura rápida). As telas do sorteio (`/sorteio`, `/sorteio/rodadas/:n`,
-  `/sorteio/apresentacao`) usam o fallback da SPA.
+  `/sorteio/apresentacao`, `/sorteio/telao`) usam o fallback da SPA.
 * A Vercel serve os arquivos com os cabeçalhos do `vercel.json`. A prévia local (`npm start`) e os
   testes E2E leem o mesmo arquivo (`scripts/serve.mjs`), então testam a configuração de produção.
 
@@ -71,7 +72,7 @@ Vercel (CDN) ──────────────────────�
 │   │   ├── import/         colar lista, importar arquivo, revisão
 │   │   ├── participants/   adicionar, editar, excluir, lista virtualizada
 │   │   ├── rounds/         palco do sorteio, resultado, histórico, exportar
-│   │   ├── presentation/   modo apresentação (tela cheia)
+│   │   ├── presentation/   modo apresentação (tela cheia) e telão em segunda janela
 │   │   ├── session/        estado da sessão (modelo, reducer, seletores)
 │   │   └── marketing/      peças da landing
 │   ├── routes/             páginas (landing, como funciona, privacidade, sorteio…)
@@ -161,6 +162,11 @@ tempo máximo de leitura.
   proteção contra injeção de fórmula.
 * **XLSX**: gerado diretamente no formato Office Open XML (com `fflate`), com metadados, tabela de
   vencedores, cabeçalho destacado e painel congelado; textos gravados como texto (nunca fórmula).
+* **PDF**: a tela da rodada tem estilos de impressão (só o resultado, tema claro, nota com data,
+  método e privacidade); "PDF ou impressão" abre a impressão do navegador, que oferece "Salvar como
+  PDF". Sem biblioteca de PDF.
+* **PNG**: imagem 1200 × 675 (desenhada em 2×) num `<canvas>`, com a identidade do bilhete: vencedor
+  em destaque (nomes longos em duas linhas) ou lista com até 12 vencedores.
 
 ## 10. Interface
 
@@ -168,6 +174,12 @@ tempo máximo de leitura.
   Archivo (com eixo de largura) e IBM Plex Mono, servidas pelo próprio site. Temas claro e escuro.
 * **Palco do sorteio**: rolo de 5 linhas com faixa central; os nomes (amostra cosmética de até 40)
   passam rápido e desaceleram até o vencedor, já sorteado. Com "reduzir movimento", aparece parado.
+* **Telão** (`features/presentation/screen.ts`): "Abrir telão" abre `/sorteio/telao#<canal>` numa
+  janela separada. O modo apresentação descreve o palco como uma cena serializável
+  (`scene.ts`: pronto, rolo, vencedor ou lista) e a publica num `BroadcastChannel` com nome
+  aleatório por aba; o telão desenha a mesma cena com o mesmo componente (`StageScene`) e gira o
+  próprio rolo. Espaço no telão pede ao modo apresentação para avançar. Sair da apresentação pausa o
+  telão (fica só o nome do sorteio); voltar o reconecta; fechar a janela do sorteio o encerra.
 * **Lista virtualizada** (TanStack Virtual): só as linhas visíveis existem no DOM.
 * **Responsivo** de 320 px a telões; no celular, uma barra fixa "Sortear" fica sempre à mão.
 * **Acessibilidade**: HTML semântico, foco visível, diálogos nativos, anúncios para leitores de tela,
@@ -191,14 +203,13 @@ Medido em `src/services/import/performance.test.ts` e `src/services/draw/statist
 |---|---|---|
 | Serviços | Vitest | motor (inclusive qui-quadrado), nomes, texto, CSV, XLSX, XLS, arquivos maliciosos, exportação, desempenho |
 | Estado | Vitest | reducer: adicionar, excluir, limpar, restaurar, reiniciar, rodadas |
-| Componentes | Vitest + Testing Library | área do sorteio, colar lista, duplicados, revelação |
-| Ponta a ponta | Playwright + axe-core | fluxos completos, importação real, apresentação, celular, 320/768 px, acessibilidade, CSP, nenhuma requisição de dados |
+| Componentes | Vitest + Testing Library | área do sorteio, colar lista, duplicados, revelação, cenas do palco, canal do telão |
+| Ponta a ponta | Playwright + axe-core | fluxos completos, importação real, exportações (inclusive PNG e impressão), apresentação, telão em segunda janela, celular, 320/768 px, acessibilidade, CSP, nenhuma requisição de dados |
 
 ## 13. Evolução
 
 | Futuro | O que já facilita |
 |---|---|
-| Sorteio verificável (seed publicada antes, resultado conferível depois) | `RandomSource` injetável; algoritmo versionado em cada rodada |
-| Segunda tela (apresentador + telão) | estado num reducer, sincronizável por `BroadcastChannel` sem gravar nada |
-| PDF / imagem do resultado | escritores de exportação independentes |
+| Sorteio verificável, com compromisso público (ver ADR-029) | `RandomSource` injetável; algoritmo versionado em cada rodada |
+| Telão em outro aparelho | a cena já é serializável; faltaria um meio de entrega — que exigiria rede (decisão de produto) |
 | Outras fontes (Google Planilhas por link público) | o pipeline recebe uma tabela, independente da origem — mas exigiria rede (decisão de produto) |

@@ -7,5 +7,6 @@ export default [
   route("sorteio", "routes/draw.tsx"),
   route("sorteio/rodadas/:number", "routes/round.tsx"),
   route("sorteio/apresentacao", "routes/presentation.tsx"),
+  route("sorteio/telao", "routes/screen.tsx"),
   route("*", "routes/not-found.tsx"),
 ] satisfies RouteConfig;

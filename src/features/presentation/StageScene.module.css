@@ -7,11 +7,39 @@
   text-align: center;
 }
 
+.ready {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
 .eyebrow {
   font-size: clamp(1rem, 2vw, 1.5rem);
-  font-weight: var(--weight-semibold);
-  letter-spacing: 0.08em;
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.title {
+  max-width: 24ch;
+  font-size: clamp(2.5rem, 7vw, 6.5rem);
+  font-weight: var(--weight-bold);
+  font-stretch: var(--stretch-expanded);
+  line-height: 1.05;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.question {
+  margin-top: var(--space-3);
+  font-size: clamp(1.5rem, 3.5vw, 3rem);
+  color: var(--color-primary);
+  font-weight: var(--weight-semibold);
+}
+
+:root[data-theme="light"] .question {
   color: var(--color-text-muted);
 }
 
