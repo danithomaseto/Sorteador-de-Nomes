@@ -10,12 +10,6 @@ coverage.xml
 htmlcov/
 *.egg-info/
 
-# Banco local
-*.db
-*.db-journal
-*.db-wal
-*.db-shm
-
 # Node / frontend
 node_modules/
 frontend/build/

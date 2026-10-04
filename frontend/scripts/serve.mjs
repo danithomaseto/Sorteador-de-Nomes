@@ -1,15 +1,22 @@
 /**
- * Servidor dos testes E2E: reproduz o comportamento do Caddy em produção — arquivos estáticos do
- * build, fallback da SPA, proxy de /api e a mesma CSP e cabeçalhos de segurança. Assim os testes
- * provam que a CSP de produção não bloqueia nada.
+ * Prévia local do build de produção (`npm start`) e servidor dos testes E2E.
+ *
+ * Reproduz o Caddy de produção (deploy/Caddyfile): arquivos estáticos do build, fallback da SPA,
+ * proxy de /api e a mesma CSP e cabeçalhos de segurança. Assim os testes provam que a CSP de
+ * produção não bloqueia nada. Não é um servidor de produção.
+ *
+ * Variáveis: PORT (4173), API_TARGET (http://127.0.0.1:8000), WEB_ROOT (build/client).
  */
 import { createReadStream } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
 import { createServer, request as forward } from "node:http";
 import { extname, join, normalize, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = resolve(process.env.WEB_ROOT ?? "../frontend/build/client");
-const API = new URL(process.env.API_TARGET ?? "http://127.0.0.1:8100");
+const ROOT = resolve(
+  process.env.WEB_ROOT ?? fileURLToPath(new URL("../build/client", import.meta.url)),
+);
+const API = new URL(process.env.API_TARGET ?? "http://127.0.0.1:8000");
 const PORT = Number(process.env.PORT ?? 4173);
 const CSP = (await readFile(resolve(ROOT, "../csp.txt"), "utf8")).trim();
 
@@ -42,7 +49,13 @@ async function isFile(path) {
 }
 
 async function resolvePath(pathname) {
-  const safe = normalize(decodeURIComponent(pathname));
+  let decoded;
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch {
+    return null; // URL malformada (ex.: "/%E0")
+  }
+  const safe = normalize(decoded);
   for (const candidate of [join(ROOT, safe), join(ROOT, safe, "index.html")]) {
     if ((candidate === ROOT || candidate.startsWith(ROOT + sep)) && (await isFile(candidate)))
       return candidate;
@@ -86,5 +99,5 @@ createServer(async (req, res) => {
   });
   createReadStream(file).pipe(res);
 }).listen(PORT, "127.0.0.1", () => {
-  console.log(`Site de teste em http://127.0.0.1:${PORT} (API: ${API.origin})`);
+  console.log(`Prévia do build em http://127.0.0.1:${PORT} (API: ${API.origin})`);
 });

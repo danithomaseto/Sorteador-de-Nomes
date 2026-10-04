@@ -162,3 +162,26 @@ participantes da lista congelada no momento do clique.
 **Decisão.** TanStack Query foi removido: sem persistência não existe "estado do servidor" para
 cachear — só chamadas pontuais (importar, sortear, exportar). Um hook pequeno (`useAsyncAction`)
 trata carregamento, erro e cancelamento.
+
+## ADR-020 — Implantação: Caddy na frente, API isolada
+
+**Contexto.** O produto precisa de HTTPS, cabeçalhos de segurança e deploy simples, sem guardar
+dados de usuário.
+**Decisão.** `docker compose` com dois containers. `web`: Caddy servindo o build estático e fazendo
+proxy de `/api` (HTTPS automático, sem log de acesso, sem painel de administração). `api`: uvicorn
+com um processo, usuário sem privilégios, sistema de arquivos somente leitura, sem capabilities e
+numa rede interna **sem acesso à internet** e sem porta publicada.
+**Consequências.** Um servidor pequeno (1 vCPU, 1 GB) basta. O único volume guarda certificados
+TLS. Como o rate limit vive na memória do processo, escalar para vários processos exige movê-lo
+(docs/architecture.md, "Escala").
+
+## ADR-021 — CSP com hashes gerados no build
+
+**Contexto.** O React Router insere scripts pequenos no HTML pré-renderizado. Liberar
+`'unsafe-inline'` anularia boa parte da proteção da CSP contra XSS.
+**Decisão.** `frontend/scripts/csp.mjs` roda ao fim de `npm run build`: calcula o SHA-256 de cada
+script embutido e gera a política (`build/csp.caddy` para o Caddy, `build/csp.txt` para a prévia
+local e os testes). O build falha se houver atributo `style` no HTML. Os testes E2E rodam com a
+mesma política e reprovam qualquer violação.
+**Consequências.** A política muda a cada build e nunca é editada à mão. Nenhuma fonte externa é
+permitida (fontes auto-hospedadas, sem CDN).

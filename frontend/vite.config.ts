@@ -11,5 +11,4 @@ export default defineConfig({
   },
   // Frontend e API na mesma origem também em desenvolvimento (ADR-008): sem CORS.
   server: { proxy: { "/api": apiTarget } },
-  preview: { proxy: { "/api": apiTarget } },
 });

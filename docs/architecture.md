@@ -50,8 +50,23 @@ Caddy ── /        → arquivos estáticos (/, /como-funciona e /privacidade 
 
 * Frontend e API no **mesmo domínio**: sem CORS em produção. Em desenvolvimento o Vite faz proxy de
   `/api` para `http://localhost:8000`.
-* A API não guarda estado entre requisições, então pode rodar com quantos workers/instâncias forem
-  necessários, sem sessão "grudada".
+* A API não guarda estado entre requisições: qualquer processo atende qualquer requisição, sem
+  sessão "grudada".
+* **Escala.** A única memória entre requisições são os contadores do rate limit (hash do IP, por
+  minutos), que ficam no processo. Com N processos, o limite efetivo por IP chega a N vezes o
+  configurado. A imagem roda um processo, o que basta para o volume esperado (uma rodada leva
+  milissegundos; a leitura de planilhas roda fora do event loop). Para escalar horizontalmente,
+  levar o rate limit para o proxy ou para um armazenamento compartilhado de contadores com
+  expiração, sem nenhum dado de participantes.
+
+### Implantação (docker compose)
+
+| Container | Imagem | Exposição | Proteções |
+|---|---|---|---|
+| `web` | `deploy/web.Dockerfile`: build do frontend + Caddy | portas 80/443 | HTTPS automático, cabeçalhos de segurança e CSP gerada no build, sem log de acesso, sem painel de administração |
+| `api` | `backend/Dockerfile`: Python 3.12 slim + uvicorn | nenhuma (só a rede interna) | usuário sem privilégios, sistema de arquivos somente leitura, sem capabilities, rede **sem acesso à internet** |
+
+O único volume é o do Caddy (certificados TLS). Nenhum container guarda dados de usuário.
 
 ## 4. Camadas do backend
 

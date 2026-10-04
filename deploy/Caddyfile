@@ -1,0 +1,48 @@
+# Sorteia — servidor web de produção (Caddy 2).
+#
+# * HTTPS automático: com SITE_ADDRESS sendo um domínio (ex.: sorteia.com.br), o Caddy obtém e
+#   renova o certificado sozinho. Para testar localmente sem HTTPS: SITE_ADDRESS=http://localhost
+# * Sem log de acesso (não registramos IPs nem URLs) e sem painel de administração.
+# * A Content-Security-Policy é gerada no build do frontend (frontend/scripts/csp.mjs), com os
+#   hashes dos scripts embutidos, e copiada para /etc/caddy/csp.caddy na imagem.
+{
+	admin off
+}
+
+{$SITE_ADDRESS:localhost} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+		Cross-Origin-Opener-Policy "same-origin"
+		Permissions-Policy "fullscreen=(self), screen-wake-lock=(self), camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+		-Server
+	}
+
+	# API: mesma origem, sem CORS. O limite de corpo do proxy fica um pouco acima do da API
+	# (8 MiB) para que a própria API responda com a mensagem amigável.
+	handle /api/* {
+		request_body {
+			max_size 10MiB
+		}
+		reverse_proxy api:8000
+	}
+
+	# Site estático (build/client do React Router).
+	handle {
+		import /etc/caddy/csp.caddy
+
+		@assets path /assets/*
+		header @assets Cache-Control "public, max-age=31536000, immutable"
+		@pages not path /assets/*
+		header @pages Cache-Control "no-cache"
+
+		root * /srv
+		# Páginas pré-renderizadas (/, /como-funciona, /privacidade); o resto é a SPA.
+		try_files {path} {path}/index.html /__spa-fallback.html
+		file_server
+	}
+}

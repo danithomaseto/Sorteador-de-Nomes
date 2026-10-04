@@ -78,7 +78,7 @@ frame-ancestors 'none'; manifest-src 'self'; worker-src 'self'
 * Tudo é servido pelo próprio domínio: fontes auto-hospedadas, nenhuma CDN, nenhum script de
   terceiros, `connect-src 'self'` (o navegador só conversa com a própria API).
 * Os testes E2E rodam contra o build de produção servido com essa mesma CSP
-  (`e2e/server.mjs`); qualquer violação ou exceção na página reprova o teste.
+  (`frontend/scripts/serve.mjs`); qualquer violação ou exceção na página reprova o teste.
 
 ## 4. Logs (observabilidade sem dados pessoais)
 

@@ -98,7 +98,7 @@ jobs:
         working-directory: e2e
       - run: npx playwright install --with-deps chromium
         working-directory: e2e
-      # Sobe a API (uvicorn) e o servidor estático com os cabeçalhos de produção (e2e/server.mjs).
+      # Sobe a API (uvicorn) e o servidor estático com os cabeçalhos de produção (frontend/scripts/serve.mjs).
       - run: npx playwright test
         working-directory: e2e
       - uses: actions/upload-artifact@v4
@@ -109,3 +109,32 @@ jobs:
             e2e/playwright-report
             e2e/test-results
           retention-days: 7
+
+  docker:
+    name: Docker (build das imagens e teste de fumaça)
+    runs-on: ubuntu-latest
+    env:
+      HTTP_PORT: "8080"
+      HTTPS_PORT: "8443"
+      SITE_ADDRESS: http://localhost
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose build
+      - run: docker compose up -d --wait
+      - name: Site, API, fallback da SPA e cabeçalhos de segurança
+        run: |
+          get() { curl -fsS --retry 10 --retry-connrefused --retry-delay 1 "$@"; }
+          get http://localhost:8080/api/health | grep -q '"ok"'
+          get http://localhost:8080/api/v1/limits | grep -q max_participants
+          get http://localhost:8080/ | grep -q '<title>'
+          get http://localhost:8080/como-funciona | grep -q '<title>'
+          headers="$(get -o /dev/null -D - http://localhost:8080/sorteio)"
+          echo "$headers"
+          grep -qi "^content-security-policy: default-src 'self'; script-src 'self' 'sha256-" <<<"$headers"
+          grep -qi '^x-frame-options: DENY' <<<"$headers"
+          grep -qi '^strict-transport-security:' <<<"$headers"
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/docs)" = 404
+      - if: always()
+        run: docker compose logs
+      - if: always()
+        run: docker compose down -v
