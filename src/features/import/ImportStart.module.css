@@ -1,0 +1,91 @@
+.start {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--space-3);
+}
+
+.option {
+  position: relative;
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: var(--space-2);
+  min-height: 9.5rem;
+  padding: var(--space-5);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-sunken);
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-micro) var(--ease-standard),
+    background-color var(--duration-micro) var(--ease-standard);
+}
+
+.option:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface);
+}
+
+.option:focus-visible,
+.drop:focus-within {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.drop {
+  border-style: dashed;
+  border-width: 2px;
+}
+
+.dragging {
+  border-color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.title {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+.hint {
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  color: var(--color-text-muted);
+}
+
+/* Campo de arquivo invisível cobrindo o bloco: o clique e o teclado abrem o seletor. */
+.fileInput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.privacy {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: var(--space-2);
+  align-items: flex-start;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.privacy svg {
+  flex: none;
+  margin-top: 0.125rem;
+}

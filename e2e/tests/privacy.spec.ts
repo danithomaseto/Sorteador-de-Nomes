@@ -1,24 +1,33 @@
 import { expect, test } from "./fixtures";
-import { openDraw, pasteNames } from "./helpers";
+import { chooseFile, openDraw, pasteNames } from "./helpers";
 
-test("nada é guardado no navegador e o sorteio não envia nomes", async ({ page, context }) => {
-  const roundRequests: string[] = [];
+test("importar, sortear e exportar sem nenhuma requisição além dos arquivos do site", async ({
+  page,
+  context,
+  baseURL,
+}) => {
+  const requests: string[] = [];
   page.on("request", (request) => {
-    if (request.url().endsWith("/api/v1/rounds")) roundRequests.push(request.postData() ?? "");
+    requests.push(`${request.method()} ${request.url()}`);
   });
 
   await openDraw(page);
   await pasteNames(page, ["Fulana Sigilosa", "Beltrano Reservado", "Ciclana Discreta"]);
+  await chooseFile(page, "fixtures/participantes.xlsx");
+  await page.getByRole("button", { name: /^Adicionar \d+ participantes$/ }).click();
   await page.getByRole("button", { name: "Sortear 1" }).click();
-  await expect(page.getByText("Vencedor", { exact: true })).toBeVisible();
+  await expect(page.getByText("Parabéns!")).toBeVisible();
+  await page.getByRole("button", { name: "Exportar" }).click();
+  const download = page.waitForEvent("download");
+  await page.getByRole("button", { name: "CSV (.csv)" }).click();
+  await download;
 
-  expect(roundRequests).toHaveLength(1);
-  expect(JSON.parse(roundRequests[0] ?? "{}")).toEqual({
-    pool_size: 3,
-    quantity: 1,
-    allow_repeat: false,
-  });
-  expect(roundRequests[0]).not.toContain("Fulana");
+  // Só GETs de arquivos do próprio site (páginas, scripts, estilos, fontes, ícones, Worker).
+  const unexpected = requests.filter(
+    (entry) => !entry.startsWith(`GET ${baseURL ?? ""}/`) && !entry.startsWith("GET blob:"),
+  );
+  expect(unexpected).toEqual([]);
+  expect(requests.join("\n")).not.toContain("Fulana");
 
   const storage = await page.evaluate(async () => ({
     local: window.localStorage.length,
@@ -30,7 +39,19 @@ test("nada é guardado no navegador e o sorteio não envia nomes", async ({ page
   expect(await context.cookies()).toEqual([]);
 });
 
-test("respostas da API não são guardadas em cache", async ({ request }) => {
-  const response = await request.get("/api/v1/limits");
-  expect(response.headers()["cache-control"]).toBe("no-store");
+test.describe("política de segurança", () => {
+  test.use({ allowCspViolations: true });
+
+  test("o navegador recusa qualquer envio de dados (connect-src 'none')", async ({ page }) => {
+    await page.goto("/sorteio");
+    const blocked = await page.evaluate(async () => {
+      try {
+        await fetch("/robots.txt", { method: "POST", body: "Fulana Sigilosa" });
+        return false;
+      } catch {
+        return true;
+      }
+    });
+    expect(blocked).toBe(true);
+  });
 });

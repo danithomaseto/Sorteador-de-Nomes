@@ -1,23 +1,13 @@
-# Python
-__pycache__/
-*.py[cod]
-.venv/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-coverage.xml
-htmlcov/
-*.egg-info/
-
-# Node / frontend
+# Dependências e build
 node_modules/
-frontend/build/
-frontend/.react-router/
-frontend/coverage/
+build/
+.react-router/
+coverage/
+.vercel/
+
+# Testes de ponta a ponta
 e2e/test-results/
 e2e/playwright-report/
-e2e/.auth/
 
 # Ambiente
 .env
@@ -29,6 +19,3 @@ e2e/.auth/
 .idea/
 .vscode/*
 !.vscode/extensions.json
-
-# E2E
-e2e/node_modules/

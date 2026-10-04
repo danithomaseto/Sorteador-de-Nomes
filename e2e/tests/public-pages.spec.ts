@@ -4,11 +4,17 @@ import { expectAccessible, trackErrors } from "./helpers";
 test("landing apresenta o produto e leva ao sorteio", async ({ page }) => {
   const errors = trackErrors(page);
   const response = await page.goto("/");
-  expect(response?.headers()["content-security-policy"]).toContain("script-src 'self' 'sha256-");
+  expect(response?.headers()["content-security-policy"]).toBe("frame-ancestors 'none'");
+  const csp = await page
+    .locator('meta[http-equiv="Content-Security-Policy"]')
+    .getAttribute("content");
+  expect(csp).toContain("script-src 'self' 'sha256-");
+  expect(csp).toContain("connect-src 'none'");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     /Sorteios simples\.\s*Resultados justos\./,
   );
-  await expect(page.getByText("Não armazenamos sua lista de participantes").first()).toBeVisible();
+  await expect(page.getByText(/armazenamos sua lista de participantes/).first()).toBeVisible();
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /og\.png$/);
   await expectAccessible(page);
   await page.getByRole("link", { name: "Criar sorteio" }).first().click();
   await expect(page).toHaveURL(/\/sorteio$/);

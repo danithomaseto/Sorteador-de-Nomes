@@ -6,7 +6,7 @@ const executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH;
 const launchOptions = executablePath ? { executablePath } : {};
 
 // Com E2E_BASE_URL os testes rodam contra um ambiente já no ar (ex.: o docker compose); sem ela,
-// sobem a API e a prévia do build localmente.
+// sobe a prévia do build de produção localmente.
 const externalBaseURL = process.env.E2E_BASE_URL;
 
 export default defineConfig({
@@ -35,20 +35,13 @@ export default defineConfig({
       use: { ...devices["Pixel 7"], launchOptions },
     },
   ],
+  // Sem API: o site é só arquivos estáticos, servidos como na Vercel (ver scripts/serve.mjs).
   webServer: externalBaseURL
     ? []
     : [
         {
-          command: "uv run uvicorn app.main:app --host 127.0.0.1 --port 8100",
-          cwd: "../backend",
-          url: "http://127.0.0.1:8100/api/health",
-          env: { APP_ENV: "test", APP_RATE_LIMIT_ENABLED: "false", APP_LOG_LEVEL: "WARNING" },
-          reuseExistingServer: !process.env.CI,
-        },
-        {
-          command: "node ../frontend/scripts/serve.mjs",
+          command: "node ../scripts/serve.mjs",
           url: "http://127.0.0.1:4173/",
-          env: { API_TARGET: "http://127.0.0.1:8100" },
           reuseExistingServer: !process.env.CI,
         },
       ],

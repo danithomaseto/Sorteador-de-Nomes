@@ -1,0 +1,107 @@
+/* Rolo de 5 linhas: a do meio é a faixa do vencedor. Usa as cores do contexto (palco ou tela). */
+.stage {
+  --row: 1.7em;
+
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-4) var(--space-4);
+  color: var(--color-text);
+  text-align: center;
+}
+
+.md {
+  font-size: clamp(1.375rem, 4vw, 2.25rem);
+}
+
+/* Telão: nomes grandes, mas o rolo inteiro cabe em telas de 720 px de altura. */
+.xl {
+  --row: 1.4em;
+
+  font-size: clamp(2rem, min(5.5vw, 8vh), 4.75rem);
+}
+
+.label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.xl .label {
+  font-size: clamp(1rem, 2vw, 1.5rem);
+}
+
+.window {
+  position: relative;
+  width: min(100%, 36em);
+  height: calc(var(--row) * 5);
+  overflow: hidden;
+  /* As linhas de cima e de baixo somem aos poucos. */
+  mask-image: linear-gradient(transparent, #000 32%, #000 68%, transparent);
+}
+
+.band {
+  position: absolute;
+  inset: calc(var(--row) * 2) 0 auto;
+  height: var(--row);
+  border-block: 2px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  transition: background-color var(--duration-ui) var(--ease-standard);
+}
+
+.strip {
+  /* Acima da faixa amarela (que é posicionada e vem antes no DOM). */
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  will-change: transform;
+}
+
+.row {
+  height: var(--row);
+  padding-inline: 0.5em;
+  overflow: hidden;
+  font-weight: var(--weight-bold);
+  font-stretch: var(--stretch-condensed);
+  line-height: var(--row);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-text-muted);
+}
+
+.landed .band {
+  background: var(--color-primary);
+}
+
+.landed .winner {
+  position: relative;
+  color: var(--color-on-primary);
+  animation: land 500ms var(--ease-standard);
+}
+
+.skip {
+  transition: opacity var(--duration-ui) var(--ease-standard);
+}
+
+.hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+@keyframes land {
+  from {
+    transform: scale(0.94);
+  }
+  55% {
+    transform: scale(1.04);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landed .winner {
+    animation: none;
+  }
+}

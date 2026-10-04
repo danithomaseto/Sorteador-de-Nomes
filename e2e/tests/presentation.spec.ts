@@ -34,7 +34,7 @@ test.describe("com animação", () => {
     await page.getByRole("button", { name: "Pular animação" }).click();
     const winner = await page
       .getByText("Vencedor", { exact: true })
-      .locator("xpath=following-sibling::p")
+      .locator("xpath=following-sibling::p[1]")
       .textContent();
     expect(winner).toMatch(/^Pessoa \d{2}$/);
     await page.getByRole("link", { name: "Voltar aos participantes" }).click();

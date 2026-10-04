@@ -1,0 +1,252 @@
+.result {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.header {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.eyebrow {
+  color: var(--color-text-muted);
+  font-weight: var(--weight-medium);
+}
+
+.title {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  line-height: 1.1;
+  font-stretch: var(--stretch-expanded);
+  outline: none;
+}
+
+.keep {
+  white-space: nowrap;
+}
+
+.roundNav {
+  display: flex;
+  gap: var(--space-5);
+  font-size: var(--text-sm);
+}
+
+/* Palco escuro do sorteio (e do vencedor único), com os recortes laterais do "bilhete". */
+.stage,
+.single {
+  /* Dentro do palco, os tokens viram os do fundo escuro (botões e foco se adaptam). */
+  --color-bg: var(--color-stage);
+  --color-text: var(--color-stage-text);
+  --color-text-muted: var(--color-stage-muted);
+  --color-border: var(--color-stage-border);
+  --color-focus: var(--color-primary);
+
+  position: relative;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.stage::before,
+.stage::after,
+.single::before,
+.single::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  /* O recorte mostra o fundo da página, não o do palco. */
+  background: var(--color-page);
+  translate: 0 -50%;
+}
+
+.stage::before,
+.single::before {
+  left: -0.625rem;
+}
+
+.stage::after,
+.single::after {
+  right: -0.625rem;
+}
+
+.single {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-7) var(--space-5);
+  text-align: center;
+}
+
+.singleLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.singleName {
+  max-width: 100%;
+  padding: 0.05em 0.35em;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: clamp(2rem, 6vw, 4.25rem);
+  font-weight: var(--weight-bold);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+  animation: land 500ms var(--ease-standard);
+}
+
+.congrats {
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+}
+
+.list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.listCaption {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.winners {
+  display: grid;
+  margin: 0;
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+.columns {
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  column-gap: var(--space-6);
+}
+
+.winner {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-2);
+  border-bottom: var(--border-width) solid var(--color-border);
+  animation: appear 300ms var(--ease-standard) both;
+}
+
+.position {
+  flex: none;
+  min-width: 2.5em;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.winnerName {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+/* Três primeiros: nomes maiores; o primeiro sorteado na faixa amarela. */
+.top {
+  padding-block: var(--space-4);
+}
+
+.top .winnerName {
+  font-size: clamp(1.375rem, 3vw, 1.875rem);
+  font-weight: var(--weight-bold);
+}
+
+.top .position {
+  font-size: var(--text-lg);
+  color: var(--color-text);
+}
+
+.first {
+  border-radius: var(--radius-md);
+  border-bottom-color: transparent;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.first .position {
+  color: var(--color-on-primary);
+}
+
+.revealActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-sunken);
+}
+
+.meta dt {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.meta dd {
+  margin: 0;
+  font-weight: var(--weight-semibold);
+}
+
+.blocker {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.primaryActions,
+.secondaryActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+@media (max-width: 479px) {
+  .primaryActions > :first-child {
+    flex: 1 1 100%;
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes land {
+  from {
+    transform: scale(0.94);
+  }
+  55% {
+    transform: scale(1.03);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .singleName,
+  .winner {
+    animation: none;
+  }
+}

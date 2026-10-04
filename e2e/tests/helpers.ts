@@ -29,9 +29,10 @@ export async function addName(page: Page, name: string): Promise<void> {
 export async function pasteNames(
   page: Page,
   names: string[],
-  options: { skipRepeated?: boolean } = {},
+  options: { keepRepeated?: boolean } = {},
 ) {
-  await page.getByRole("button", { name: "Colar lista" }).click();
+  // Com a lista vazia, o botão é o bloco "Colar uma lista".
+  await page.getByRole("button", { name: /^Colar (uma )?lista$/ }).click();
   const textarea = page.getByLabel("Nomes");
   if (names.length > 200) {
     await textarea.evaluate((element, value) => {
@@ -43,7 +44,7 @@ export async function pasteNames(
     await textarea.fill(names.join("\n"));
   }
   await page.getByRole("button", { name: "Revisar lista" }).click();
-  if (options.skipRepeated) await page.getByRole("radio", { name: "Ignorar repetidos" }).check();
+  if (options.keepRepeated) await page.getByRole("radio", { name: "Manter todos" }).check();
   await page.getByRole("button", { name: /^Adicionar \d/ }).click();
   await expect(page.getByRole("dialog")).toBeHidden();
 }
@@ -69,4 +70,17 @@ export async function expectAccessible(page: Page): Promise<void> {
       `${violation.id} (${violation.impact ?? "?"}): ${violation.nodes.map((node) => node.target.join(" ")).join(" | ")}`,
   );
   expect(violations).toEqual([]);
+}
+
+/** Escolhe um arquivo para importar (pelo bloco inicial ou pela janela de importação). */
+export async function chooseFile(
+  page: Page,
+  file: string | { name: string; mimeType: string; buffer: Buffer },
+): Promise<void> {
+  const openDialog = page.getByRole("button", { name: "Importar planilha" });
+  if (await openDialog.isVisible()) await openDialog.click();
+  const input = (await page.getByRole("dialog").isVisible())
+    ? page.getByRole("dialog").locator('input[type="file"]')
+    : page.getByLabel("Importar planilha");
+  await input.setInputFiles(file);
 }

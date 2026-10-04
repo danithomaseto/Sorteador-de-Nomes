@@ -13,92 +13,45 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  backend:
-    name: Backend (lint, tipos, testes)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
-        with:
-          python-version: "3.12"
-      - run: uv sync --frozen
-      - run: uv run ruff check .
-      - run: uv run ruff format --check .
-      - run: uv run mypy
-      - name: Contrato OpenAPI versionado está atualizado
-        run: |
-          uv run python -m app.cli openapi > openapi.json
-          git diff --exit-code -- openapi.json
-      - run: uv run pytest --cov --cov-report=term-missing -m "not perf"
-      - name: Testes de desempenho (10 a 50 mil participantes)
-        run: uv run pytest -m perf -q
-      - name: Auditoria de dependências
-        run: uv run pip-audit --progress-spinner off
-
-  frontend:
-    name: Frontend (contrato, lint, tipos, testes, build)
+  app:
+    name: App (tipos, lint, formatação, testes, build)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
-        with:
-          python-version: "3.12"
       - uses: actions/setup-node@v4
         with:
           node-version: "22.22"
           cache: npm
-          cache-dependency-path: frontend/package-lock.json
       - run: npm ci
-        working-directory: frontend
-      - name: Tipos da API gerados a partir do contrato do backend estão atualizados
-        run: |
-          (cd backend && uv sync --frozen && uv run python -m app.cli openapi > openapi.json)
-          (cd frontend && npm run api:generate)
-          git diff --exit-code -- backend/openapi.json frontend/src/lib/api/schema.d.ts
       - run: npm run typecheck
-        working-directory: frontend
       - run: npm run lint
-        working-directory: frontend
       - run: npm run format:check
-        working-directory: frontend
       - run: npm test
-        working-directory: frontend
       - run: npm run build
-        working-directory: frontend
-      - run: npm audit --omit=dev --audit-level=high
-        working-directory: frontend
-
+      - name: Auditoria de dependências
+        run: npm audit --omit=dev --audit-level=high
 
   e2e:
-    name: E2E (fluxos completos, acessibilidade, CSP)
+    name: E2E (navegador real, acessibilidade, privacidade, CSP)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
-        with:
-          python-version: "3.12"
       - uses: actions/setup-node@v4
         with:
           node-version: "22.22"
           cache: npm
           cache-dependency-path: |
-            frontend/package-lock.json
+            package-lock.json
             e2e/package-lock.json
-      - run: uv sync --frozen
-        working-directory: backend
-      - name: Build de produção do frontend (com a CSP gerada)
+      - name: Build de produção
         run: npm ci && npm run build
-        working-directory: frontend
       - run: npm ci
         working-directory: e2e
       - run: npm run typecheck && npm run format:check
         working-directory: e2e
       - run: npx playwright install --with-deps chromium
         working-directory: e2e
-      # Sobe a API (uvicorn) e o servidor estático com os cabeçalhos de produção (frontend/scripts/serve.mjs).
+      # Serve o build como a Vercel (scripts/serve.mjs lê o vercel.json) e roda os testes.
       - run: npx playwright test
         working-directory: e2e
       - uses: actions/upload-artifact@v4
@@ -109,32 +62,3 @@ jobs:
             e2e/playwright-report
             e2e/test-results
           retention-days: 7
-
-  docker:
-    name: Docker (build das imagens e teste de fumaça)
-    runs-on: ubuntu-latest
-    env:
-      HTTP_PORT: "8080"
-      HTTPS_PORT: "8443"
-      SITE_ADDRESS: http://localhost
-    steps:
-      - uses: actions/checkout@v4
-      - run: docker compose build
-      - run: docker compose up -d --wait
-      - name: Site, API, fallback da SPA e cabeçalhos de segurança
-        run: |
-          get() { curl -fsS --retry 10 --retry-connrefused --retry-delay 1 "$@"; }
-          get http://localhost:8080/api/health | grep -q '"ok"'
-          get http://localhost:8080/api/v1/limits | grep -q max_participants
-          get http://localhost:8080/ | grep -q '<title>'
-          get http://localhost:8080/como-funciona | grep -q '<title>'
-          headers="$(get -o /dev/null -D - http://localhost:8080/sorteio)"
-          echo "$headers"
-          grep -qi "^content-security-policy: default-src 'self'; script-src 'self' 'sha256-" <<<"$headers"
-          grep -qi '^x-frame-options: DENY' <<<"$headers"
-          grep -qi '^strict-transport-security:' <<<"$headers"
-          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/docs)" = 404
-      - if: always()
-        run: docker compose logs
-      - if: always()
-        run: docker compose down -v
