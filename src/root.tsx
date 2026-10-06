@@ -1,6 +1,8 @@
 // Estilos globais primeiro: tokens e reset precedem o CSS dos componentes.
 import "@fontsource-variable/archivo/wdth.css";
 import "@fontsource/ibm-plex-mono/latin-500.css";
+// Serifa editorial: só títulos grandes das páginas de conteúdo (baixada apenas onde é usada).
+import "@fontsource-variable/newsreader/wght.css";
 import "./styles/global.css";
 import type { ReactNode } from "react";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";

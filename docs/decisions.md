@@ -348,3 +348,17 @@ uma roleta por vencedor.
 no máximo 30 nomes por mensagem. A animação continua sem decidir nada (o resultado já está
 registrado) e respeita "reduzir movimento".
 
+## ADR-032 — Páginas de apresentação editoriais
+
+**Contexto.** A página inicial e as páginas de texto pareciam genéricas: frase de efeito, título
+quebrado em 4 linhas, "texto à esquerda e imagem à direita", quadros com ✓ e borda colorida, e uma
+coluna estreita perdida no meio de telas largas.
+**Decisão.** Títulos grandes em serifa (Newsreader, só nessas páginas) contra a sans da interface;
+hero empilhado (título em largura total, texto e ações em colunas assimétricas, palco do produto
+abaixo); recursos em bento com recortes da interface real; confiança como ficha técnica; páginas
+de texto com sumário, largura de leitura e ficha-resumo. Grão sutil só nas superfícies escuras.
+Fotografia apenas real, com tratamento padronizado, num espaço que só aparece quando há fotos —
+nunca banco de imagens ou ilustração.
+**Consequências.** Uma fonte a mais (58 KB, baixada só onde é usada). O app em si continua só com a
+sans. Fotos dependem de material real do uso do produto.
+

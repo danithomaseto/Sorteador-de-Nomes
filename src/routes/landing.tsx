@@ -3,15 +3,24 @@ import { ButtonLink } from "~/components/Button";
 import { cx } from "~/components/cx";
 import { Icon } from "~/components/Icon";
 import { PageLayout } from "~/components/layout/PageLayout";
+import {
+  FigureVisual,
+  FormatsVisual,
+  ReelsVisual,
+  ScreenVisual,
+  SheetVisual,
+} from "~/features/marketing/FeatureVisuals";
+import { Photo } from "~/features/marketing/Photo";
+import { LANDING_PHOTOS } from "~/features/marketing/photos";
 import { ResultPreview } from "~/features/marketing/ResultPreview";
 import { useSession } from "~/features/session/SessionProvider";
-import { APP_NAME, PRIVACY_MESSAGE, SITE_DESCRIPTION } from "~/config";
+import { APP_NAME, SITE_DESCRIPTION } from "~/config";
 import { countLabel } from "~/utils/format";
 import styles from "./landing.module.css";
 import { pageMeta } from "~/utils/seo";
 
 const DESCRIPTION =
-  "Cole ou importe a lista, escolha quantos vencedores e sorteie. Tudo acontece no seu navegador.";
+  "Cole a lista ou importe do Excel, escolha quantos vencedores e mostre as roletas em tela cheia. Tudo acontece no seu navegador.";
 
 export function meta() {
   return [
@@ -34,142 +43,182 @@ export function meta() {
 
 const STEPS = [
   {
-    title: "Adicione os participantes",
-    text: "Digite os nomes, cole uma lista ou importe uma planilha do Excel ou um arquivo CSV.",
+    title: "Monte a lista",
+    text: "Digite os nomes, cole de uma planilha ou importe um arquivo .xlsx, .xls ou .csv. Repetidos e linhas vazias são tratados na hora.",
   },
   {
-    title: "Escolha as regras",
-    text: "Quantos vencedores, se alguém pode sair duas vezes e se quem ganhou sai das próximas rodadas.",
+    title: "Defina as regras",
+    text: "Quantos vencedores, se alguém pode sair duas vezes e se quem ganhou fica de fora das próximas rodadas.",
   },
   {
-    title: "Sorteie",
-    text: "As roletas giram e param nos vencedores. Apresente em tela cheia e exporte em Excel, CSV, texto, PDF ou imagem.",
+    title: "Sorteie na frente de todos",
+    text: "As roletas giram e param nos vencedores. Apresente em tela cheia ou num telão e exporte o resultado.",
   },
 ];
 
-const FEATURES: { title: string; text: string }[] = [
-  {
-    title: "Planilhas e listas coladas",
-    text: "Excel (.xlsx e .xls) e .csv com várias colunas: você escolhe a coluna dos nomes e revisa antes de adicionar. Duplicados e linhas vazias são tratados.",
-  },
-  {
-    title: "Vários vencedores de uma vez",
-    text: "Com 10 vencedores, 10 nomes param nas roletas ao mesmo tempo. Cada rodada fica no histórico da sessão e não pode ser refeita.",
-  },
-  {
-    title: "Sem repetição",
-    text: "Ninguém aparece duas vezes no mesmo resultado e, se você quiser, quem ganhou fica de fora das próximas rodadas.",
-  },
-  {
-    title: "Para telão e projetor",
-    text: "Tela cheia, revelação um a um e atalhos de teclado. O telão abre numa segunda janela enquanto você controla pelo notebook.",
-  },
-];
+const SPECS = [
+  ["Gerador", "Criptográfico do próprio dispositivo (Web Crypto)"],
+  ["Método", "Fisher–Yates com amostragem por rejeição"],
+  ["Chance", "A mesma para cada participante disponível"],
+  ["Inteligência artificial", "Nenhuma"],
+  ["Dados enviados", "Nenhum — o navegador bloqueia qualquer envio"],
+  ["Cadastro e cookies", "Não existem"],
+] as const;
 
 export default function Landing() {
   const { state } = useSession();
-  const hasSession = state.participants.length > 0;
+  const total = state.participants.length;
+  const cta = total > 0 ? "Continuar sorteio" : "Criar sorteio";
 
   return (
     <PageLayout>
       <section className={cx("container", styles.hero)} aria-labelledby="titulo">
-        <div className={styles.heroText}>
-          <h1 id="titulo" className={styles.title}>
-            Sorteios simples.
-            <br />
-            Resultados justos.
-          </h1>
+        <p className={styles.kicker}>Sorteio de nomes online · grátis e sem cadastro</p>
+        <h1 id="titulo" className={styles.title}>
+          Sorteio de nomes, da planilha ao telão.
+        </h1>
+        <div className={styles.heroFoot}>
           <p className={styles.lead}>{DESCRIPTION}</p>
-          <div className={styles.ctas}>
-            <ButtonLink to="/sorteio" variant="primary" size="xl" icon="shuffle">
-              {hasSession ? "Continuar sorteio" : "Criar sorteio"}
-            </ButtonLink>
-            <ButtonLink to="/como-funciona" variant="ghost" size="lg">
-              Como funciona o sorteio
-            </ButtonLink>
-          </div>
-          {hasSession ? (
-            <p className={styles.note}>
-              Sua lista tem {countLabel(state.participants.length, "participante", "participantes")}{" "}
-              nesta aba.
+          <div className={styles.heroActions}>
+            <div className={styles.ctas}>
+              <ButtonLink to="/sorteio" variant="primary" size="lg" icon="shuffle">
+                {cta}
+              </ButtonLink>
+              <ButtonLink to="/como-funciona" size="lg">
+                Como funciona
+              </ButtonLink>
+            </div>
+            <p className={styles.reassure}>
+              <Icon name="lock" size={16} />
+              <span>
+                Nada é enviado nem fica guardado.
+                {total > 0
+                  ? ` Sua lista tem ${countLabel(total, "participante", "participantes")} nesta aba.`
+                  : ""}
+              </span>
             </p>
-          ) : null}
-          <p className={styles.privacy}>
-            <Icon name="lock" size={18} />
-            <span>{PRIVACY_MESSAGE} Sem cadastro.</span>
-          </p>
+          </div>
         </div>
         <ResultPreview />
       </section>
 
-      <section className={cx("container", styles.section)} aria-labelledby="como-funciona">
-        <h2 id="como-funciona" className={styles.sectionTitle}>
-          Como funciona
+      <section className={cx("container", styles.section, styles.split)} aria-labelledby="passos">
+        <h2 id="passos" className={styles.sectionTitle}>
+          Do nome ao vencedor em três passos.
         </h2>
         <ol className={styles.steps}>
           {STEPS.map((step, index) => (
             <li key={step.title} className={styles.step}>
-              <span className={cx(styles.stepNumber, "numeric")} aria-hidden="true">
-                {String(index + 1).padStart(2, "0")}
+              <span className={styles.stepNumber} aria-hidden="true">
+                {index + 1}
               </span>
-              <h3>{step.title}</h3>
-              <p>{step.text}</p>
+              <div className={styles.stepBody}>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </div>
             </li>
           ))}
         </ol>
       </section>
 
       <section className={cx("container", styles.section)} aria-labelledby="recursos">
-        <h2 id="recursos" className={styles.sectionTitle}>
-          O que você pode fazer
-        </h2>
-        <ul role="list" className={styles.features}>
-          {FEATURES.map((feature) => (
-            <li key={feature.title} className={styles.feature}>
-              <h3>{feature.title}</h3>
-              <p>{feature.text}</p>
-            </li>
-          ))}
+        <div className={styles.sectionHead}>
+          <h2 id="recursos" className={styles.sectionTitle}>
+            Tudo o que um sorteio pede.
+          </h2>
+          <p className={styles.sectionLead}>
+            Da rifa da escola ao brinde da confraternização e à premiação do evento.
+          </p>
+        </div>
+        <ul role="list" className={styles.bento}>
+          <li className={cx(styles.tile, styles.tileWide)}>
+            <div className={styles.tileText}>
+              <h3>Vários vencedores de uma vez</h3>
+              <p>Uma roleta por vencedor, todas girando juntas. Com 10, são 5 roletas com 2.</p>
+            </div>
+            <ReelsVisual />
+          </li>
+          <li className={styles.tile}>
+            <div className={styles.tileText}>
+              <h3>Direto da planilha</h3>
+              <p>Excel e CSV com várias colunas: você escolhe a dos nomes e revisa antes.</p>
+            </div>
+            <SheetVisual />
+          </li>
+          <li className={styles.tile}>
+            <div className={styles.tileText}>
+              <h3>Telão e projetor</h3>
+              <p>Uma segunda janela para o projetor enquanto você controla pelo notebook.</p>
+            </div>
+            <ScreenVisual />
+          </li>
+          <li className={styles.tile}>
+            <FigureVisual value="50.000" unit="nomes por sorteio, sem travar a página" />
+            <div className={styles.tileText}>
+              <h3>Listas grandes</h3>
+              <p>Lidas em segundo plano e exibidas em colunas que rolam sem engasgar.</p>
+            </div>
+          </li>
+          <li className={styles.tile}>
+            <FigureVisual value="0" unit="nomes enviados a servidores" />
+            <div className={styles.tileText}>
+              <h3>Privado por construção</h3>
+              <p>Sem cadastro, sem banco de dados e sem cookies. A lista existe só nesta aba.</p>
+            </div>
+          </li>
+          <li className={styles.tile}>
+            <FormatsVisual />
+            <div className={styles.tileText}>
+              <h3>Resultado para guardar</h3>
+              <p>Copie ou exporte em Excel, CSV, texto, PDF ou imagem para compartilhar.</p>
+            </div>
+          </li>
         </ul>
       </section>
 
-      <section className={cx("container", styles.section)} aria-labelledby="confianca">
-        <div className={styles.trust}>
-          <h2 id="confianca" className={styles.sectionTitle}>
-            Transparente do começo ao fim
+      {LANDING_PHOTOS.length > 0 ? (
+        <section className={cx("container", styles.section)} aria-labelledby="em-uso">
+          <h2 id="em-uso" className={styles.sectionTitle}>
+            Em uso.
           </h2>
-          <ul role="list" className={styles.trustList}>
-            <li>
-              <strong>Aleatório de verdade.</strong> Os vencedores são escolhidos pelo gerador de
-              números aleatórios criptográfico do seu dispositivo. Cada participante disponível tem
-              a mesma chance.
-            </li>
-            <li>
-              <strong>Sem inteligência artificial.</strong> Nenhuma IA escolhe, sugere ou influencia
-              vencedores.
-            </li>
-            <li>
-              <strong>Nada sai do seu navegador.</strong> A lista, o sorteio e a exportação
-              acontecem no seu dispositivo. Sem cadastro, banco de dados nem cookies: a lista existe
-              só enquanto a página estiver aberta.
-            </li>
-          </ul>
-          <Link to="/como-funciona" className={styles.trustLink}>
-            Ver os detalhes do sorteio →
+          <div className={styles.photos}>
+            {LANDING_PHOTOS.map((photo) => (
+              <Photo key={photo.src} photo={photo} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      <section className={cx("container", styles.section)} aria-labelledby="confianca">
+        <div className={styles.statement}>
+          <h2 id="confianca" className={styles.statementTitle}>
+            O resultado é decidido antes de as roletas girarem — e nunca sai do seu navegador.
+          </h2>
+          <Link to="/como-funciona" className={styles.textLink}>
+            Ver os detalhes do sorteio
+            <Icon name="chevron-right" size={16} />
           </Link>
         </div>
+        <dl className={styles.specs}>
+          {SPECS.map(([term, description]) => (
+            <div key={term} className={styles.spec}>
+              <dt>{term}</dt>
+              <dd>{description}</dd>
+            </div>
+          ))}
+        </dl>
       </section>
 
       <section className={cx("container", styles.final)} aria-labelledby="comecar">
-        <div>
-          <h2 id="comecar" className={styles.sectionTitle}>
-            Sem cadastro, sem instalar nada
-          </h2>
-          <p className={styles.finalText}>Cole a lista e sorteie em menos de um minuto.</p>
+        <h2 id="comecar" className={styles.finalTitle}>
+          Tem uma lista pronta?
+        </h2>
+        <div className={styles.finalAction}>
+          <p className={styles.sectionLead}>Cole os nomes e sorteie em menos de um minuto.</p>
+          <ButtonLink to="/sorteio" variant="primary" size="lg" icon="shuffle">
+            {cta}
+          </ButtonLink>
         </div>
-        <ButtonLink to="/sorteio" variant="primary" size="lg" icon="shuffle">
-          {hasSession ? "Continuar sorteio" : "Criar sorteio"}
-        </ButtonLink>
       </section>
     </PageLayout>
   );

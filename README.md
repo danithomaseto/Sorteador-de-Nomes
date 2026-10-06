@@ -63,7 +63,7 @@ segurança das páginas proíbe o próprio navegador de enviar dados para qualqu
 | Parte | Escolha |
 |---|---|
 | Interface | React 19, React Router 8 (SPA com páginas pré-renderizadas), TypeScript 5.9, Vite 8 |
-| Estilo | CSS Modules e design tokens próprios; fontes Archivo e IBM Plex Mono servidas pelo próprio site |
+| Estilo | CSS Modules e design tokens próprios; fontes Archivo (interface), Newsreader (títulos editoriais) e IBM Plex Mono, servidas pelo próprio site |
 | Sorteio | `crypto.getRandomValues` (Web Crypto) + Fisher–Yates parcial, sem viés |
 | Planilhas | leitores próprios de `.xlsx` (com [`fflate`](https://github.com/101arrowz/fflate)) e `.xls`, num Web Worker |
 | Lista grande | TanStack Virtual |
@@ -196,6 +196,7 @@ As principais estão em [docs/decisions.md](docs/decisions.md):
 * **ADR-029:** por que não há "sorteio verificável" (ainda).
 * **ADR-030:** área do sorteio em colunas no desktop e em abas no celular.
 * **ADR-031:** roletas múltiplas para vários vencedores.
+* **ADR-032:** páginas de apresentação editoriais (serifa nos títulos, bento com recortes reais, fotos só reais).
 
 ## Privacidade dos dados
 

@@ -11,7 +11,7 @@ test("landing apresenta o produto e leva ao sorteio", async ({ page }) => {
   expect(csp).toContain("script-src 'self' 'sha256-");
   expect(csp).toContain("connect-src 'none'");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    /Sorteios simples\.\s*Resultados justos\./,
+    "Sorteio de nomes, da planilha ao telão.",
   );
   await expect(page.getByText(/armazenamos sua lista de participantes/).first()).toBeVisible();
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", /og\.png$/);
@@ -36,7 +36,22 @@ for (const [path, title] of [
 
 test("como funciona deixa claro que não há IA", async ({ page }) => {
   await page.goto("/como-funciona");
-  await expect(page.getByText("Nenhuma inteligência artificial escolhe")).toBeVisible();
+  const summary = page.getByRole("complementary", { name: "Em resumo" });
+  await expect(summary.getByText("Inteligência artificial", { exact: true })).toBeVisible();
+  await expect(summary.getByText(/^Nenhuma\. Quem escolhe é o gerador aleatório/)).toBeVisible();
+});
+
+test("sumário das páginas de texto leva à seção", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/como-funciona");
+  const toc = page.getByRole("navigation", { name: "Nesta página" });
+  await toc.getByRole("link", { name: "Garantias e limites" }).click();
+  await expect(page).toHaveURL(/#garantias$/);
+  await expect(page.getByRole("heading", { name: "Garantias e limites" })).toBeInViewport();
+  await expect(toc.getByRole("link", { name: "Garantias e limites" })).toHaveAttribute(
+    "aria-current",
+    "location",
+  );
 });
 
 test("tema escuro da landing é acessível", async ({ page }) => {

@@ -6,13 +6,13 @@
 .stage {
   position: relative;
   display: grid;
-  justify-items: center;
-  gap: var(--space-5);
-  padding: var(--space-6) var(--space-5);
+  gap: var(--space-6);
+  padding: clamp(var(--space-5), 4vw, var(--space-8)) clamp(var(--space-4), 5vw, var(--space-9));
+  border: var(--border-width) solid var(--color-stage-border);
   border-radius: var(--radius-xl);
-  background: var(--color-stage);
+  background: var(--texture-grain), var(--color-stage);
+  background-blend-mode: soft-light;
   color: var(--color-stage-text);
-  text-align: center;
 }
 
 /* Recortes laterais do bilhete. */
@@ -36,6 +36,13 @@
   right: -0.625rem;
 }
 
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
 .label {
   font-size: var(--text-caption);
   font-weight: var(--weight-bold);
@@ -44,32 +51,39 @@
   color: var(--color-primary);
 }
 
+.meta,
+.caption {
+  font-size: var(--text-sm);
+  color: var(--color-stage-muted);
+}
+
 .reels {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-3);
-  width: 100%;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(var(--space-2), 1.2vw, var(--space-4));
 }
 
 .reel {
   display: grid;
+  gap: 6px;
   min-width: 0;
-  font-size: clamp(0.9375rem, 0.7rem + 0.8vw, 1.25rem);
+  font-size: clamp(0.8125rem, 0.4rem + 1.1vw, 1.625rem);
   font-weight: var(--weight-bold);
   font-stretch: var(--stretch-condensed);
-  line-height: 2;
+  line-height: 2.1;
+  text-align: center;
 }
 
 .reel > * {
   overflow: hidden;
-  padding-inline: 0.4em;
+  padding-inline: 0.35em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .context {
   color: var(--color-stage-muted);
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
 .band {
@@ -78,7 +92,13 @@
   color: var(--color-on-primary);
 }
 
-.meta {
-  font-size: var(--text-sm);
-  color: var(--color-stage-muted);
+/* Telas estreitas: três roletas, como o sorteio faria nessa largura. */
+@media (max-width: 559px) {
+  .reels {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .reel:nth-child(n + 4) {
+    display: none;
+  }
 }

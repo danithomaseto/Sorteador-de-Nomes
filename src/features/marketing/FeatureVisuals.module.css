@@ -1,0 +1,174 @@
+/* Palco escuro em miniatura, com grão sutil. */
+/* Rótulo no topo; as roletas centralizadas na altura que sobrar. */
+.stage {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  container-type: inline-size;
+  border-radius: var(--radius-lg);
+  background: var(--texture-grain), var(--color-stage);
+  background-blend-mode: soft-light;
+  color: var(--color-stage-text);
+}
+
+.stageLabel {
+  align-self: start;
+  font-size: var(--text-caption);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.reels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.reel {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  /* Acompanha a largura do bloco: maior no bloco principal do bento. */
+  font-size: clamp(0.8125rem, 3.6cqi, 1.75rem);
+  font-weight: var(--weight-bold);
+  font-stretch: var(--stretch-condensed);
+  line-height: 2;
+  text-align: center;
+}
+
+.reel > * {
+  overflow: hidden;
+  padding-inline: 0.35em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.context {
+  color: var(--color-stage-muted);
+  opacity: 0.5;
+}
+
+.band {
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+/* Planilha: a coluna escolhida ganha contorno, o resto fica em segundo plano. */
+.sheet {
+  display: grid;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  font-size: var(--text-sm);
+}
+
+.sheetRow {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 0.8fr;
+}
+
+.sheetRow + .sheetRow {
+  border-top: var(--border-width) solid var(--color-border-subtle);
+}
+
+.sheetHead,
+.cell {
+  overflow: hidden;
+  padding: var(--space-2) var(--space-3);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheetHead {
+  background: var(--color-surface-sunken);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.cell {
+  color: var(--color-text-muted);
+}
+
+.picked {
+  box-shadow:
+    inset 2px 0 0 var(--color-text),
+    inset -2px 0 0 var(--color-text);
+  color: var(--color-text);
+  font-weight: var(--weight-semibold);
+}
+
+/* Tela de projetor. */
+.screen {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-2);
+  aspect-ratio: 16 / 9;
+  border: 6px solid var(--color-text);
+  border-radius: var(--radius-md);
+  background: var(--texture-grain), var(--color-stage);
+  background-blend-mode: soft-light;
+  color: var(--color-stage-text);
+}
+
+.screenLabel {
+  font-size: var(--text-caption);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.screenName {
+  padding: 0.05em 0.4em;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: clamp(1rem, 0.7rem + 1vw, 1.5rem);
+  font-weight: var(--weight-bold);
+}
+
+.formats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.format {
+  padding: var(--space-1) var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+}
+
+.figure {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.figureValue {
+  font-family: var(--font-serif);
+  font-size: clamp(3rem, 2rem + 3vw, 4.5rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: lining-nums;
+}
+
+.figureUnit {
+  max-width: 14rem;
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  color: var(--color-text-muted);
+}

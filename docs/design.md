@@ -55,8 +55,16 @@ Base de 4 px: 4 micro · 8 pequeno · 12 compacto · 16 padrão · 24 confortáv
 
 ## 5. Tipografia
 
-Uma família (Archivo, com eixo de largura) e três pesos: 400, 600 e 720. Largura expandida só em
-títulos de página e no palco; condensada só nos nomes das roletas.
+Duas vozes, com papéis separados:
+
+* **Interface** — Archivo (sans, com eixo de largura), três pesos: 400, 600 e 720. Largura
+  expandida só em títulos de telas do app e no palco; condensada só nos nomes das roletas.
+* **Editorial** — Newsreader (serifa, peso 420) só nos títulos grandes da página inicial e das
+  páginas de texto, com contraste forte de tamanho (título de 48 a 124 px contra corpo de 16 a
+  21 px). O arquivo só é baixado nas páginas que o usam.
+
+Escolhemos não usar Inter, Geist ou SF: são as fontes mais associadas a sites genéricos, e a
+Archivo já cumpre o papel de sans limpa com identidade própria.
 
 | Papel | Tamanho / altura de linha |
 |---|---|
@@ -122,7 +130,26 @@ sequência curta (35 ms por item). A animação nunca decide nada: o resultado j
 Ícones: um conjunto só (traço de 2 px, grade de 24 px, cantos arredondados), sempre acompanhados de
 texto ou de nome acessível.
 
-## 10. Composição por tela
+## 10. Páginas de apresentação
+
+* **Página inicial:** título editorial grande em largura total; abaixo, texto e ações em colunas
+  assimétricas (6 + 5 de 12); em seguida, o palco do produto em largura total (10 vencedores em 5
+  roletas). Passos com o título fixo numa coluna estreita e a lista numa larga. Recursos em
+  **bento** (6 colunas; o bloco das roletas ocupa 4 × 2) e cada bloco mostra um recorte real da
+  interface — nunca ilustração. Confiança como afirmação grande e ficha técnica em 3 colunas.
+* **Páginas de texto:** sumário fixo à esquerda (destaca a seção atual), texto na largura de
+  leitura (até 672 px) e ficha "Em resumo" à direita; no celular, o resumo vem antes do texto.
+* **Textura:** grão sutil (`--texture-grain`, `public/grain.svg`, combinado com
+  `background-blend-mode: soft-light`) só nas superfícies escuras do palco, para tirar o aspecto
+  digital chapado.
+* **Fotografia:** a página inicial tem um espaço para fotos reais de uso
+  (`features/marketing/photos.ts`, arquivos em `public/fotos/`), com tratamento único: preto e
+  branco, contraste leve, tom de papel e grão. Sem fotos, a seção não aparece. Proibido usar banco
+  de imagens genérico, ilustração 3D ou vetor corporativo.
+* **Sombras e bordas:** blocos do bento com borda de 1 px e `--shadow-soft` (quase imperceptível);
+  nenhuma sombra escura.
+
+## 11. Composição por tela
 
 * **Área do sorteio (desktop):** título editável e privacidade no topo; à esquerda, a lista
   (superfície única, cabeçalho com ações, campos de adicionar e filtrar lado a lado, lista em
@@ -134,7 +161,7 @@ texto ou de nome acessível.
   fatos da rodada numa linha discreta.
 * **Modo apresentação e telão:** só o palco, com controles que somem após 3 s sem uso.
 
-## 11. Acessibilidade
+## 12. Acessibilidade
 
 Navegação completa por teclado, foco visível em todos os controles, alvos de 44 px em telas de
 toque, nomes acessíveis para ações só com ícone, anúncios em regiões ao vivo, `aria-setsize` e

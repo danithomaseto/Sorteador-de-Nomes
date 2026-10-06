@@ -15,6 +15,8 @@
   --font-sans:
     "Archivo Variable", "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  /* Títulos editoriais (página inicial e páginas de texto). A interface usa só a sans. */
+  --font-serif: "Newsreader Variable", "Newsreader", Georgia, "Times New Roman", serif;
 
   /* Cores — tema claro */
   --color-bg: #f6f5f1;
@@ -100,7 +102,7 @@
   /* Área do sorteio: ferramenta de trabalho, usa a largura da tela até 1600 px. */
   --app-max: 100rem;
   /* Páginas de conteúdo e apresentação do produto. */
-  --content-max: 72rem;
+  --content-max: 80rem;
   --reading-max: 40rem;
   --header-height: 3.5rem;
   --aside-width: clamp(20rem, 14rem + 9vw, 25rem);
@@ -115,8 +117,12 @@
   --border-width: 1px;
   --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-focus);
 
-  /* Sombras: só em camadas sobrepostas */
+  /* Grão fotográfico sutil para superfícies escuras (combinar com background-blend-mode). */
+  --texture-grain: url("/grain.svg") 0 0 / 240px repeat;
+
+  /* Sombras: só em camadas sobrepostas; "soft" dá uma elevação quase imperceptível a blocos. */
   --shadow-overlay: 0 12px 32px rgb(27 26 23 / 0.14), 0 2px 6px rgb(27 26 23 / 0.08);
+  --shadow-soft: 0 1px 2px rgb(27 26 23 / 0.04), 0 12px 32px -12px rgb(27 26 23 / 0.08);
   --shadow-raised: 0 -4px 16px rgb(27 26 23 / 0.08);
 
   /* Camadas */
@@ -180,6 +186,7 @@
     --color-focus: #f2b300;
     --color-overlay: rgb(0 0 0 / 0.64);
     --shadow-overlay: 0 12px 32px rgb(0 0 0 / 0.5), 0 0 0 1px rgb(255 255 255 / 0.06);
+    --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.3);
   }
 }
 
@@ -212,6 +219,7 @@
   --color-focus: #f2b300;
   --color-overlay: rgb(0 0 0 / 0.64);
   --shadow-overlay: 0 12px 32px rgb(0 0 0 / 0.5), 0 0 0 1px rgb(255 255 255 / 0.06);
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.3);
 }
 
 /* Impressão sempre no tema claro (mesmo com o sistema no modo escuro), em papel branco. */
