@@ -11,8 +11,13 @@ import styles from "./HistoryPanel.module.css";
 
 const PREVIEW_NAMES = 3;
 
+interface HistoryPanelProps {
+  /** Título só para leitores de tela (no celular, a aba já diz qual é a seção). */
+  hideTitle?: boolean;
+}
+
 /** Rodadas desta sessão, da mais recente para a mais antiga. Nenhuma pode ser refeita. */
-export function HistoryPanel() {
+export function HistoryPanel({ hideTitle = false }: HistoryPanelProps) {
   const { state, dispatch } = useSession();
   const toast = useToast();
   const [confirmRestart, setConfirmRestart] = useState(false);
@@ -21,14 +26,17 @@ export function HistoryPanel() {
   return (
     <section aria-labelledby="historico-titulo" className={styles.panel}>
       <div className={styles.header}>
-        <h2 id="historico-titulo">Histórico</h2>
+        <h2 id="historico-titulo" className={hideTitle ? "visually-hidden" : styles.heading}>
+          Histórico
+        </h2>
         {rounds.length > 0 ? (
           <ExportMenu rounds={state.rounds} label="Exportar tudo" size="sm" align="end" />
         ) : null}
       </div>
       {rounds.length === 0 ? (
         <p className={styles.empty}>
-          As rodadas aparecem aqui. Cada uma fica registrada nesta sessão e não pode ser refeita.
+          Nenhuma rodada ainda. Cada sorteio fica registrado aqui, nesta sessão, e não pode ser
+          refeito.
         </p>
       ) : (
         <ol role="list" className={styles.list}>

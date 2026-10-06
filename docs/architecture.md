@@ -1,6 +1,6 @@
 # Arquitetura
 
-Como o Sorteia é construído e por quê. As decisões estão em [`decisions.md`](decisions.md);
+Como o Sorteio360 é construído e por quê. As decisões estão em [`decisions.md`](decisions.md);
 segurança e privacidade em [`security.md`](security.md).
 
 ## 1. Visão geral
@@ -172,16 +172,23 @@ tempo máximo de leitura.
 
 * **Design system próprio** (CSS Modules + tokens), identidade "bilhete": tinta, amarelo e papel;
   Archivo (com eixo de largura) e IBM Plex Mono, servidas pelo próprio site. Temas claro e escuro.
-* **Palco do sorteio**: rolo de 5 linhas com faixa central; os nomes (amostra cosmética de até 40)
-  passam rápido e desaceleram até o vencedor, já sorteado. Com "reduzir movimento", aparece parado.
+  Detalhes em [`design.md`](design.md).
+* **Área do sorteio** (`routes/draw.tsx`): a partir de 1024 px, `PageLayout layout="app"` ocupa a
+  altura da tela; a lista (`ParticipantsPanel fill`) rola por dentro, em colunas
+  (`useVirtualizer` com `lanes`), e a coluna de regras rola acima de uma base fixa com "Sortear".
+  Abaixo de 1024 px, abas (`components/Tabs`) e a lista rola com a página (`useWindowVirtualizer`).
+* **Palco do sorteio** (`features/rounds/DrawReel.tsx`): roletas lado a lado, uma por vencedor ou
+  várias faixas por roleta (`reelLayout.ts`: 10 = 5 × 2; até 30 na tela, conforme a largura). Os
+  nomes que passam são uma amostra cosmética de até 40; cada roleta para em cascata nos vencedores,
+  já sorteados. Com "reduzir movimento", aparecem paradas.
 * **Telão** (`features/presentation/screen.ts`): "Abrir telão" abre `/sorteio/telao#<canal>` numa
   janela separada. O modo apresentação descreve o palco como uma cena serializável
-  (`scene.ts`: pronto, rolo, vencedor ou lista) e a publica num `BroadcastChannel` com nome
-  aleatório por aba; o telão desenha a mesma cena com o mesmo componente (`StageScene`) e gira o
-  próprio rolo. Espaço no telão pede ao modo apresentação para avançar. Sair da apresentação pausa o
+  (`scene.ts`: pronto, roletas, vencedor ou lista) e a publica num `BroadcastChannel` com nome
+  aleatório por aba; o telão desenha a mesma cena com o mesmo componente (`StageScene`) e gira as
+  próprias roletas. Espaço no telão pede ao modo apresentação para avançar. Sair da apresentação pausa o
   telão (fica só o nome do sorteio); voltar o reconecta; fechar a janela do sorteio o encerra.
 * **Lista virtualizada** (TanStack Virtual): só as linhas visíveis existem no DOM.
-* **Responsivo** de 320 px a telões; no celular, uma barra fixa "Sortear" fica sempre à mão.
+* **Responsivo** de 320 px a telões; no celular, abas e uma barra fixa "Sortear".
 * **Acessibilidade**: HTML semântico, foco visível, diálogos nativos, anúncios para leitores de tela,
   contraste AA verificado com axe nos testes.
 

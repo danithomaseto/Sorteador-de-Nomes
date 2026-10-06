@@ -40,7 +40,7 @@
   border: var(--border-width) solid var(--color-border-strong);
   border-radius: var(--radius-md);
   background: var(--color-surface);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-regular);
   font-variant-numeric: tabular-nums;
   transition:
     background-color var(--duration-micro) var(--ease-standard),

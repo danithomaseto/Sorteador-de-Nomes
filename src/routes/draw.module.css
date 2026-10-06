@@ -1,7 +1,8 @@
-.page {
-  display: grid;
+.workspace {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-5);
-  padding-block: var(--space-6) var(--space-8);
+  padding-block: var(--space-5);
 }
 
 .header {
@@ -16,42 +17,92 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-3) var(--space-4);
 }
 
 .privacy {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-2);
   font-size: var(--text-sm);
+  line-height: var(--leading-sm);
   color: var(--color-text-muted);
 }
 
-.grid {
+.privacy svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.privacy a {
+  color: var(--color-text);
+}
+
+/* Celular e tablet: abas fixas no topo ao rolar; "Sortear" na barra do rodapé. */
+.sections {
   display: grid;
   gap: var(--space-5);
-  align-items: start;
-}
-
-.side {
-  display: grid;
-  gap: var(--space-5);
-}
-
-@media (min-width: 1024px) {
-  .grid {
-    grid-template-columns: minmax(0, 1fr) 22rem;
-  }
-
-  .side {
-    position: sticky;
-    top: var(--space-4);
-  }
-}
-
-@media (max-width: 1023px) {
   /* Espaço para a barra fixa "Sortear". */
-  .page {
-    padding-bottom: 7rem;
+  padding-bottom: 5rem;
+}
+
+.tabs {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+  background: var(--color-bg);
+}
+
+.panel {
+  display: grid;
+  gap: var(--space-6);
+  outline: none;
+}
+
+/* Desktop: a área do sorteio ocupa a altura da tela; cada coluna rola por conta própria. */
+@media (min-width: 1024px) {
+  .workspace {
+    flex: 1;
+    min-height: 0;
+    padding-bottom: var(--space-6);
+  }
+
+  .columns {
+    display: grid;
+    flex: 1;
+    grid-template-columns: minmax(0, 1fr) var(--aside-width);
+    gap: var(--space-6);
+    min-height: 0;
+  }
+
+  .aside {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .asideScroll {
+    display: grid;
+    flex: 1;
+    align-content: start;
+    gap: var(--space-6);
+    min-height: 0;
+    overflow-y: auto;
+    /* Espaço para o anel de foco não ser cortado pela rolagem. */
+    margin-inline: calc(var(--space-1) * -1);
+    padding: var(--space-1) var(--space-1) var(--space-5);
+  }
+
+  .asideScroll > * + * {
+    padding-top: var(--space-5);
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  /* O botão "Sortear" fica sempre visível na base da coluna. */
+  .asideFooter {
+    padding-top: var(--space-5);
+    border-top: var(--border-width) solid var(--color-border);
   }
 }

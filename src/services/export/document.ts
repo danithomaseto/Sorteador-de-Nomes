@@ -1,4 +1,5 @@
 /** Conteúdo de uma exportação e textos comuns a todos os formatos. */
+import { APP_NAME } from "~/config";
 import { WITH_REPETITION, WITHOUT_REPETITION } from "~/services/draw";
 
 export type ExportFormat = "txt" | "csv" | "xlsx";
@@ -86,5 +87,4 @@ export function exportFileName(document: ExportDocument, extension: ExportFormat
   return `${base}-${suffix}.${extension}`;
 }
 
-export const EXPORT_NOTE =
-  "Gerado no navegador pelo Sorteia. Nenhum dado do sorteio foi enviado a servidores: guarde este arquivo se precisar de um registro.";
+export const EXPORT_NOTE = `Gerado no navegador pelo ${APP_NAME}. Nenhum dado do sorteio foi enviado a servidores: guarde este arquivo se precisar de um registro.`;

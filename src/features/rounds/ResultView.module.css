@@ -4,17 +4,20 @@
 }
 
 .header {
-  display: grid;
-  gap: var(--space-1);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-5);
 }
 
-.eyebrow {
-  color: var(--color-text-muted);
-  font-weight: var(--weight-medium);
+.heading {
+  display: grid;
+  gap: var(--space-2);
 }
 
 .title {
-  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.75rem);
   line-height: 1.1;
   font-stretch: var(--stretch-expanded);
   outline: none;
@@ -26,77 +29,83 @@
 
 .roundNav {
   display: flex;
-  gap: var(--space-5);
-  font-size: var(--text-sm);
+  flex-wrap: wrap;
+  gap: var(--space-1);
 }
 
-/* Palco escuro do sorteio (e do vencedor único), com os recortes laterais do "bilhete". */
-.stage,
-.single {
-  /* Dentro do palco, os tokens viram os do fundo escuro (botões e foco se adaptam). */
+/*
+ * Palco: o "bilhete" escuro (nos dois temas) onde as roletas giram e o resultado aparece. Dentro
+ * dele, os tokens viram os do fundo escuro (botões e foco se adaptam).
+ */
+.stage {
   --color-bg: var(--color-stage);
+  --color-surface: var(--color-stage);
   --color-text: var(--color-stage-text);
   --color-text-muted: var(--color-stage-muted);
   --color-border: var(--color-stage-border);
+  --color-border-strong: var(--color-stage-muted);
+  --color-hover: rgb(245 243 238 / 0.08);
   --color-focus: var(--color-primary);
+  --color-secondary: var(--color-stage-text);
+  --color-on-secondary: var(--color-stage);
 
   position: relative;
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-lg);
+  display: grid;
+  gap: var(--space-5);
+  min-height: 18rem;
+  align-content: center;
+  padding: var(--space-6) clamp(var(--space-4), 3vw, var(--space-7));
+  border-radius: var(--radius-xl);
   background: var(--color-bg);
   color: var(--color-text);
 }
 
+/* Recortes laterais do bilhete: mostram o fundo da página. */
 .stage::before,
-.stage::after,
-.single::before,
-.single::after {
+.stage::after {
   content: "";
   position: absolute;
   top: 50%;
   width: 1.25rem;
   height: 1.25rem;
   border-radius: 50%;
-  /* O recorte mostra o fundo da página, não o do palco. */
   background: var(--color-page);
   translate: 0 -50%;
 }
 
-.stage::before,
-.single::before {
+.stage::before {
   left: -0.625rem;
 }
 
-.stage::after,
-.single::after {
+.stage::after {
   right: -0.625rem;
+}
+
+.stageLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-primary);
 }
 
 .single {
   display: grid;
   justify-items: center;
   gap: var(--space-3);
-  padding: var(--space-7) var(--space-5);
+  padding-block: var(--space-5);
   text-align: center;
-}
-
-.singleLabel {
-  font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-primary);
 }
 
 .singleName {
   max-width: 100%;
-  padding: 0.05em 0.35em;
+  padding: 0.05em 0.4em;
   border-radius: var(--radius-md);
   background: var(--color-primary);
   color: var(--color-on-primary);
-  font-size: clamp(2rem, 6vw, 4.25rem);
+  font-size: clamp(2rem, 1rem + 4.5vw, 4.5rem);
   font-weight: var(--weight-bold);
-  line-height: 1.1;
+  line-height: 1.15;
   overflow-wrap: anywhere;
   animation: land 500ms var(--ease-standard);
 }
@@ -108,7 +117,15 @@
 
 .list {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-4);
+}
+
+.listHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
 }
 
 .listCaption {
@@ -116,96 +133,63 @@
   color: var(--color-text-muted);
 }
 
+/* Vencedores em colunas, na ordem do sorteio linha a linha (como nas roletas). */
 .winners {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  column-gap: var(--space-6);
   margin: 0;
-  border-top: var(--border-width) solid var(--color-border);
 }
 
-.columns {
-  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
-  column-gap: var(--space-6);
+.few {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+}
+
+.many {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
 }
 
 .winner {
   display: flex;
   align-items: baseline;
-  gap: var(--space-4);
-  padding: var(--space-3) var(--space-2);
+  gap: var(--space-3);
+  min-width: 0;
+  padding-block: var(--space-3);
   border-bottom: var(--border-width) solid var(--color-border);
-  animation: appear 300ms var(--ease-standard) both;
+  animation: appear var(--duration-layout) var(--ease-enter) both;
+  animation-delay: calc(var(--i, 0) * 35ms);
 }
 
 .position {
   flex: none;
-  min-width: 2.5em;
-  font-size: var(--text-md);
+  min-width: 2.25em;
+  font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   font-variant-numeric: tabular-nums;
-  color: var(--color-text-muted);
+  color: var(--color-primary);
 }
 
 .winnerName {
+  min-width: 0;
   font-size: var(--text-lg);
   font-weight: var(--weight-semibold);
   overflow-wrap: anywhere;
 }
 
-/* Três primeiros: nomes maiores; o primeiro sorteado na faixa amarela. */
-.top {
-  padding-block: var(--space-4);
-}
-
-.top .winnerName {
-  font-size: clamp(1.375rem, 3vw, 1.875rem);
+.few .winnerName {
+  font-size: clamp(1.375rem, 1rem + 1.5vw, 2rem);
   font-weight: var(--weight-bold);
 }
 
-.top .position {
-  font-size: var(--text-lg);
-  color: var(--color-text);
-}
-
-.first {
-  border-radius: var(--radius-md);
-  border-bottom-color: transparent;
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-}
-
-.first .position {
-  color: var(--color-on-primary);
+.many .winnerName {
+  font-size: var(--text-md);
 }
 
 .revealActions {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: var(--space-2);
-}
-
-.meta {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
-  gap: var(--space-4);
-  margin: 0;
-  padding: var(--space-5);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface-sunken);
-}
-
-.meta dt {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
-
-.meta dd {
-  margin: 0;
-  font-weight: var(--weight-semibold);
-}
-
-.blocker {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
 }
 
 .actions {
@@ -222,16 +206,59 @@
   gap: var(--space-2);
 }
 
+.blocker {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* Fatos da rodada: uma linha discreta, sem moldura. */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-7);
+  margin: 0;
+  padding-top: var(--space-5);
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+.meta dt {
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.meta dd {
+  margin: var(--space-1) 0 0;
+  font-weight: var(--weight-semibold);
+}
+
 @media (max-width: 479px) {
   .primaryActions > :first-child {
     flex: 1 1 100%;
+  }
+
+  .actions,
+  .secondaryActions {
+    width: 100%;
+  }
+
+  .secondaryActions {
+    justify-content: space-between;
+  }
+
+  .meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 }
 
 @keyframes appear {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(var(--motion-distance));
   }
 }
 
@@ -262,28 +289,29 @@
   }
 
   /* No papel, o palco escuro vira um quadro com borda (economiza tinta). */
-  .single {
+  .stage {
     --color-bg: #ffffff;
     --color-text: #1b1a17;
     --color-text-muted: #5f5d57;
-    --color-border: #1b1a17;
+    --color-border: #dddad2;
 
-    padding-block: var(--space-6);
+    min-height: 0;
+    border: var(--border-width) solid #1b1a17;
     break-inside: avoid;
   }
 
-  .single::before,
-  .single::after {
+  .stage::before,
+  .stage::after {
     display: none;
   }
 
-  .singleLabel {
+  .stageLabel,
+  .position {
     color: var(--color-text);
   }
 
-  /* Destaques amarelos impressos como na tela. */
-  .singleName,
-  .first {
+  /* Destaque amarelo do vencedor impresso como na tela. */
+  .singleName {
     print-color-adjust: exact;
   }
 
@@ -294,10 +322,5 @@
 
   .winner {
     break-inside: avoid;
-  }
-
-  .meta {
-    border: var(--border-width) solid var(--color-border);
-    background: none;
   }
 }

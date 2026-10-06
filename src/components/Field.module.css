@@ -88,7 +88,7 @@
   font-size: var(--text-sm);
   line-height: var(--leading-sm);
   color: var(--color-error);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-regular);
 }
 
 .error svg {

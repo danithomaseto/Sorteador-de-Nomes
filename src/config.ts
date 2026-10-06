@@ -1,5 +1,5 @@
 /** Nome do produto (ADR-016): trocar aqui basta para renomear a interface. */
-export const APP_NAME = "Sorteia";
+export const APP_NAME = "Sorteio360";
 
 export const PRIVACY_MESSAGE =
   "Seus dados ficam apenas no seu navegador, durante o sorteio. Não recebemos nem armazenamos sua lista de participantes ou seus resultados.";

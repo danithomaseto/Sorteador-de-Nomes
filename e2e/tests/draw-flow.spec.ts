@@ -166,7 +166,7 @@ test("editar e excluir com desfazer", async ({ page }) => {
   await page.getByRole("button", { name: "Editar Bia" }).click();
   await page.getByRole("dialog").getByLabel("Nome").fill("Beatriz Souza");
   await page.getByRole("button", { name: "Salvar" }).click();
-  await expect(page.getByText("Beatriz Souza")).toBeVisible();
+  await expect(page.getByText("Beatriz Souza", { exact: true })).toBeVisible();
 
   await page.getByRole("button", { name: "Excluir Caio" }).click();
   expect(await participantCount(page)).toBe("2");

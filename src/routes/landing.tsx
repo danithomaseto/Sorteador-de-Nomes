@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { ButtonLink } from "~/components/Button";
 import { cx } from "~/components/cx";
-import { Icon, type IconName } from "~/components/Icon";
+import { Icon } from "~/components/Icon";
 import { PageLayout } from "~/components/layout/PageLayout";
 import { ResultPreview } from "~/features/marketing/ResultPreview";
 import { useSession } from "~/features/session/SessionProvider";
@@ -43,30 +43,26 @@ const STEPS = [
   },
   {
     title: "Sorteie",
-    text: "Veja o resultado na hora ou apresente em tela cheia. Exporte em Excel, CSV ou texto se precisar de registro.",
+    text: "As roletas giram e param nos vencedores. Apresente em tela cheia e exporte em Excel, CSV, texto, PDF ou imagem.",
   },
 ];
 
-const FEATURES: { icon: IconName; title: string; text: string }[] = [
+const FEATURES: { title: string; text: string }[] = [
   {
-    icon: "upload",
-    title: "Importar participantes",
-    text: "Planilhas do Excel (.xlsx e .xls) e arquivos .csv com várias colunas: você escolhe a coluna dos nomes e revisa antes de adicionar. Duplicados e linhas vazias são tratados.",
+    title: "Planilhas e listas coladas",
+    text: "Excel (.xlsx e .xls) e .csv com várias colunas: você escolhe a coluna dos nomes e revisa antes de adicionar. Duplicados e linhas vazias são tratados.",
   },
   {
-    icon: "list",
-    title: "Sorteios múltiplos",
-    text: "Sorteie 1, 10 ou mil vencedores de uma vez, em várias rodadas. Cada rodada fica no histórico da sessão e não pode ser refeita.",
+    title: "Vários vencedores de uma vez",
+    text: "Com 10 vencedores, 10 nomes param nas roletas ao mesmo tempo. Cada rodada fica no histórico da sessão e não pode ser refeita.",
   },
   {
-    icon: "check-circle",
     title: "Sem repetição",
     text: "Ninguém aparece duas vezes no mesmo resultado e, se você quiser, quem ganhou fica de fora das próximas rodadas.",
   },
   {
-    icon: "monitor",
-    title: "Modo apresentação",
-    text: "Tela cheia para telão, TV ou projetor, com revelação um a um e atalhos de teclado. O telão pode abrir numa segunda janela enquanto você controla pelo notebook.",
+    title: "Para telão e projetor",
+    text: "Tela cheia, revelação um a um e atalhos de teclado. O telão abre numa segunda janela enquanto você controla pelo notebook.",
   },
 ];
 
@@ -124,15 +120,12 @@ export default function Landing() {
       </section>
 
       <section className={cx("container", styles.section)} aria-labelledby="recursos">
-        <h2 id="recursos" className="visually-hidden">
-          Recursos
+        <h2 id="recursos" className={styles.sectionTitle}>
+          O que você pode fazer
         </h2>
         <ul role="list" className={styles.features}>
           {FEATURES.map((feature) => (
             <li key={feature.title} className={styles.feature}>
-              <span className={styles.featureIcon}>
-                <Icon name={feature.icon} size={22} />
-              </span>
               <h3>{feature.title}</h3>
               <p>{feature.text}</p>
             </li>
@@ -168,9 +161,12 @@ export default function Landing() {
       </section>
 
       <section className={cx("container", styles.final)} aria-labelledby="comecar">
-        <h2 id="comecar" className={styles.sectionTitle}>
-          Pronto para sortear?
-        </h2>
+        <div>
+          <h2 id="comecar" className={styles.sectionTitle}>
+            Sem cadastro, sem instalar nada
+          </h2>
+          <p className={styles.finalText}>Cole a lista e sorteie em menos de um minuto.</p>
+        </div>
         <ButtonLink to="/sorteio" variant="primary" size="lg" icon="shuffle">
           {hasSession ? "Continuar sorteio" : "Criar sorteio"}
         </ButtonLink>

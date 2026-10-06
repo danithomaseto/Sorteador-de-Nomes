@@ -1,30 +1,34 @@
-/* Rolo de 5 linhas: a do meio é a faixa do vencedor. Usa as cores do contexto (palco ou tela). */
+/*
+ * Roletas do sorteio. Cada roleta é uma janela de linhas; as faixas amarelas marcam os
+ * vencedores. Usa as cores do contexto (palco ou tela) e se adapta à largura de cada roleta
+ * (container queries): com muitas roletas, os nomes diminuem em vez de transbordar.
+ */
 .stage {
-  --row: 1.7em;
+  /* Altura de cada linha, relativa ao tamanho do nome. */
+  --row: 1.6em;
+  --reel-min: 1rem;
+  --reel-max: 2.25rem;
 
   display: grid;
   justify-items: center;
   gap: var(--space-4);
+  width: 100%;
   padding: var(--space-6) var(--space-4) var(--space-4);
   color: var(--color-text);
   text-align: center;
 }
 
-.md {
-  font-size: clamp(1.375rem, 4vw, 2.25rem);
-}
-
-/* Telão: nomes grandes, mas o rolo inteiro cabe em telas de 720 px de altura. */
+/* Telão: nomes grandes, mas tudo cabe em telas de 720 px de altura. */
 .xl {
   --row: 1.4em;
-
-  font-size: clamp(2rem, min(5.5vw, 8vh), 4.75rem);
+  --reel-min: 1.25rem;
+  --reel-max: 4.75rem;
 }
 
 .label {
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
-  letter-spacing: 0.16em;
+  letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
   color: var(--color-primary);
 }
@@ -33,26 +37,53 @@
   font-size: clamp(1rem, 2vw, 1.5rem);
 }
 
-.window {
-  position: relative;
-  width: min(100%, 36em);
-  height: calc(var(--row) * 5);
-  overflow: hidden;
-  /* As linhas de cima e de baixo somem aos poucos. */
-  mask-image: linear-gradient(transparent, #000 32%, #000 68%, transparent);
+.bank {
+  display: grid;
+  grid-template-columns: repeat(var(--reel-columns), minmax(0, 1fr));
+  gap: var(--space-3);
+  width: min(100%, 36rem);
 }
 
+.multi .bank {
+  width: 100%;
+}
+
+.reel {
+  container-type: inline-size;
+  min-width: 0;
+}
+
+.window {
+  position: relative;
+  /* O tamanho do nome acompanha a largura da roleta (e, no telão, a altura da tela). */
+  font-size: clamp(var(--reel-min), 11cqi, var(--reel-max));
+  height: calc(var(--row) * var(--reel-rows));
+  overflow: hidden;
+  /* As linhas de contexto somem aos poucos nas bordas. */
+  mask-image: linear-gradient(
+    transparent,
+    #000 calc(var(--row) * var(--reel-context) * 0.8),
+    #000 calc(100% - var(--row) * var(--reel-context) * 0.8),
+    transparent
+  );
+}
+
+.xl .window {
+  font-size: clamp(var(--reel-min), min(11cqi, calc(56vh / var(--reel-rows))), var(--reel-max));
+}
+
+/* Uma faixa por vencedor; faixas vizinhas ficam separadas por um respiro. */
 .band {
   position: absolute;
-  inset: calc(var(--row) * 2) 0 auto;
-  height: var(--row);
+  inset: calc(var(--row) * var(--reel-slot) + 2px) 0 auto;
+  height: calc(var(--row) - 4px);
   border-block: 2px solid var(--color-primary);
   border-radius: var(--radius-md);
   transition: background-color var(--duration-ui) var(--ease-standard);
 }
 
 .strip {
-  /* Acima da faixa amarela (que é posicionada e vem antes no DOM). */
+  /* Acima das faixas (que são posicionadas e vêm antes no DOM). */
   position: relative;
   margin: 0;
   padding: 0;
@@ -62,7 +93,7 @@
 
 .row {
   height: var(--row);
-  padding-inline: 0.5em;
+  padding-inline: 0.4em;
   overflow: hidden;
   font-weight: var(--weight-bold);
   font-stretch: var(--stretch-condensed);
@@ -80,6 +111,11 @@
   position: relative;
   color: var(--color-on-primary);
   animation: land 500ms var(--ease-standard);
+}
+
+.more {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
 }
 
 .skip {

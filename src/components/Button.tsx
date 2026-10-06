@@ -76,6 +76,7 @@ export function Button({
 
 interface ButtonLinkProps extends LinkProps, StyleOptions {
   icon?: IconName;
+  iconEnd?: IconName;
   children: ReactNode;
 }
 
@@ -84,14 +85,17 @@ export function ButtonLink({
   size,
   fullWidth,
   icon,
+  iconEnd,
   className,
   children,
   ...props
 }: ButtonLinkProps) {
+  const iconSize = size === "xl" ? 28 : size === "sm" ? 16 : 20;
   return (
     <Link className={cx(buttonClassName({ variant, size, fullWidth }), className)} {...props}>
-      {icon ? <Icon name={icon} size={size === "xl" ? 28 : 20} /> : null}
+      {icon ? <Icon name={icon} size={iconSize} /> : null}
       {children}
+      {iconEnd ? <Icon name={iconEnd} size={iconSize} /> : null}
     </Link>
   );
 }

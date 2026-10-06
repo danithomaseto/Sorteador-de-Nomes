@@ -22,7 +22,17 @@ import { useParticipantActions } from "./useParticipantActions";
 
 type OpenDialog = "paste" | "file" | null;
 
-export function ParticipantsPanel() {
+interface ParticipantsPanelProps {
+  /**
+   * Desktop: o painel ocupa a altura da coluna e a lista rola por dentro. Sem isso (celular), a
+   * lista rola com a página.
+   */
+  fill?: boolean;
+  /** Título só para leitores de tela (no celular, a aba já diz qual é a seção). */
+  hideTitle?: boolean;
+}
+
+export function ParticipantsPanel({ fill = false, hideTitle = false }: ParticipantsPanelProps) {
   const { state, dispatch } = useSession();
   const { removeParticipant } = useParticipantActions();
   const toast = useToast();
@@ -90,32 +100,71 @@ export function ParticipantsPanel() {
         }
       : {};
 
+  const clearButton = (
+    <Button
+      variant="ghost"
+      size="sm"
+      icon="trash"
+      onClick={() => {
+        setConfirmClear(true);
+      }}
+    >
+      Limpar lista
+    </Button>
+  );
+
   return (
     // Arrastar arquivos é um atalho; "Importar planilha" oferece a mesma ação pelo teclado.
     <section
       aria-labelledby="participantes-titulo"
-      className={cx(styles.panel, draggingFile && styles.dropTarget)}
+      className={cx(styles.panel, fill && styles.fill, draggingFile && styles.dropTarget)}
       {...dropHandlers}
     >
       <div className={styles.header}>
-        <h2 id="participantes-titulo" className={styles.title}>
+        <h2 id="participantes-titulo" className={cx(styles.title, hideTitle && "visually-hidden")}>
           Participantes <span className={`${styles.count} numeric`}>{formatNumber(total)}</span>
         </h2>
         {total > 0 ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            icon="trash"
-            onClick={() => {
-              setConfirmClear(true);
-            }}
-          >
-            Limpar lista
-          </Button>
+          <div className={styles.headerActions}>
+            <Button
+              size="sm"
+              icon="clipboard"
+              onClick={() => {
+                setDialog("paste");
+              }}
+            >
+              Colar lista
+            </Button>
+            <Button
+              size="sm"
+              icon="upload"
+              onClick={() => {
+                openFile(null);
+              }}
+            >
+              Importar planilha
+            </Button>
+            {fill ? clearButton : null}
+          </div>
         ) : null}
       </div>
 
-      <AddParticipantForm />
+      <div className={styles.fields}>
+        <AddParticipantForm />
+        {total > 0 ? (
+          <TextField
+            type="search"
+            label="Filtrar participantes"
+            hideLabel
+            placeholder="Filtrar por nome"
+            className={styles.search}
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+            }}
+          />
+        ) : null}
+      </div>
 
       {total === 0 ? (
         <ImportStart
@@ -125,72 +174,50 @@ export function ParticipantsPanel() {
           onFile={openFile}
         />
       ) : (
-        <div className={styles.importActions}>
-          <Button
-            icon="clipboard"
-            onClick={() => {
-              setDialog("paste");
-            }}
-          >
-            Colar lista
-          </Button>
-          <Button
-            icon="upload"
-            onClick={() => {
-              openFile(null);
-            }}
-          >
-            Importar planilha
-          </Button>
-        </div>
-      )}
-
-      {total === 0 ? null : (
-        <div className={styles.listArea}>
-          <div className={styles.toolbar}>
-            <TextField
-              type="search"
-              label="Filtrar participantes"
-              hideLabel
-              placeholder="Filtrar por nome"
-              className={styles.search}
-              value={query}
-              onChange={(event) => {
-                setQuery(event.target.value);
-              }}
-            />
-            {duplicateCount > 0 ? (
+        <>
+          {duplicateCount > 0 ? (
+            <div className={styles.notices}>
+              {!onlyDuplicates ? (
+                <InlineAlert tone="warning">
+                  {countLabel(duplicateCount, "participante tem", "participantes têm")} nome
+                  repetido. Podem ser pessoas diferentes; revise e exclua se for a mesma pessoa.
+                </InlineAlert>
+              ) : null}
               <Switch
-                label={`Só possíveis duplicados (${formatNumber(duplicateCount)})`}
+                label={`Mostrar só possíveis duplicados (${formatNumber(duplicateCount)})`}
                 checked={onlyDuplicates}
                 onChange={setOnlyDuplicates}
               />
-            ) : null}
-          </div>
-
-          {duplicateCount > 0 && !onlyDuplicates ? (
-            <InlineAlert tone="warning">
-              {countLabel(duplicateCount, "participante tem", "participantes têm")} nome repetido.
-              Podem ser pessoas diferentes; revise e exclua se for a mesma pessoa.
-            </InlineAlert>
+            </div>
           ) : null}
 
           <p className={styles.resultCount} aria-live="polite">
-            {filtering ? `${formatNumber(filtered.length)} de ${formatNumber(total)}` : ""}
+            {filtering
+              ? `${formatNumber(filtered.length)} de ${formatNumber(total)} participantes`
+              : ""}
           </p>
 
-          {filtered.length === 0 ? (
-            <p className={styles.noResults}>Nenhum participante corresponde ao filtro.</p>
-          ) : (
-            <ParticipantList
-              items={filtered}
-              positions={positions}
-              duplicates={duplicates}
-              onEdit={setEditing}
-              onRemove={removeParticipant}
-            />
-          )}
-        </div>
+          <div className={styles.listArea}>
+            {filtered.length === 0 ? (
+              <p className={styles.noResults}>
+                {deferredQuery.trim()
+                  ? `Nenhum participante com “${deferredQuery.trim()}”. Confira a grafia ou limpe o filtro.`
+                  : "Nenhum participante corresponde ao filtro."}
+              </p>
+            ) : (
+              <ParticipantList
+                items={filtered}
+                positions={positions}
+                duplicates={duplicates}
+                scroll={fill ? "element" : "window"}
+                onEdit={setEditing}
+                onRemove={removeParticipant}
+              />
+            )}
+          </div>
+          {/* No celular, ações sobre a lista inteira ficam no fim dela. */}
+          {fill ? null : <div className={styles.listFooter}>{clearButton}</div>}
+        </>
       )}
 
       {dialog === "paste" ? (

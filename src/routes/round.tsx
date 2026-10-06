@@ -34,8 +34,8 @@ export default function RoundPage() {
   }, [location.pathname, navigate]);
 
   return (
-    <PageLayout>
-      <div className={cx("container", styles.page)}>
+    <PageLayout layout="wide">
+      <div className={cx("app-container", styles.page)}>
         {round ? (
           <ResultView
             key={round.number}

@@ -139,10 +139,11 @@ export default function HowItWorks() {
         <section className={styles.section} aria-labelledby="animacao">
           <h2 id="animacao">A animação</h2>
           <p>
-            A animação com nomes passando é apenas visual. Os vencedores já foram definidos no
-            momento em que você clicou em “Sortear”; a animação sempre termina no resultado real. Na
-            revelação “um a um”, todos os vencedores da rodada também já foram definidos — revelar é
-            só apresentar.
+            As roletas com nomes passando são apenas visuais. Os vencedores já foram definidos no
+            momento em que você clicou em “Sortear”; as roletas sempre param no resultado real. Com
+            vários vencedores, elas giram juntas — 10 vencedores aparecem, por exemplo, em 5 roletas
+            com 2 faixas cada, na ordem do sorteio. Na revelação “um a um”, todos os vencedores da
+            rodada também já foram definidos — revelar é só apresentar.
           </p>
         </section>
 

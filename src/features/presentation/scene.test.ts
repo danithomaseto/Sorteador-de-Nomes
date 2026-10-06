@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GRID_LIMIT, roundScene } from "./scene";
+import { GRID_LIMIT, REEL_LIMIT, roundScene } from "./scene";
 
 const winners = (count: number) =>
   Array.from({ length: count }, (_, i) => ({ position: i + 1, name: `Pessoa ${String(i + 1)}` }));
@@ -20,7 +20,8 @@ describe("cena do palco", () => {
       phase: "reel",
       id: "2:0",
       names: sample,
-      finalName: "Pessoa 1",
+      winners: ["Pessoa 1"],
+      total: 1,
       label: "Sorteando",
       pace: "normal",
     });
@@ -43,7 +44,7 @@ describe("cena do palco", () => {
     expect(roundScene({ ...base, revealed: 1, animating: 1 })).toMatchObject({
       phase: "reel",
       id: "1:1",
-      finalName: "Pessoa 2",
+      winners: ["Pessoa 2"],
       label: "Vencedor 2 de 3 · sorteando",
       pace: "quick",
     });
@@ -56,6 +57,22 @@ describe("cena do palco", () => {
       phase: "grid",
       total: 3,
     });
+  });
+
+  it("em lista, todas as roletas giram juntas", () => {
+    const scene = roundScene({
+      roundNumber: 3,
+      winners: winners(45),
+      revealed: 0,
+      animating: 0,
+      sequential: false,
+      sample,
+    });
+    expect(scene).toMatchObject({ phase: "reel", id: "3:0", label: "Sorteando", pace: "normal" });
+    if (scene.phase !== "reel") return;
+    expect(scene.winners).toHaveLength(REEL_LIMIT);
+    expect(scene.total).toBe(45);
+    expect(scene.winners[0]).toBe("Pessoa 1");
   });
 
   it("lista limitada no palco, só com posição e nome", () => {

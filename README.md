@@ -1,4 +1,4 @@
-# Sorteia — sorteio de nomes
+# Sorteio360 — sorteio de nomes
 
 Sorteador de nomes online, grátis e sem cadastro. Cole uma lista ou importe uma planilha, escolha
 quantos vencedores e sorteie — com um resultado pronto para projetar, copiar ou exportar.
@@ -19,7 +19,7 @@ segurança das páginas proíbe o próprio navegador de enviar dados para qualqu
   * Colar uma lista: um por linha, ou separados por `;` ou `,`. Colunas copiadas de uma planilha também funcionam.
   * Importar `.xlsx`, `.xls` (Excel 97–2003) ou `.csv`, com escolha de aba e coluna. Também é possível arrastar o arquivo para a página.
   * Editar, excluir (com desfazer), filtrar.
-  * Até 50 mil nomes, com lista virtualizada.
+  * Até 50 mil nomes, com lista virtualizada que se distribui em colunas nas telas largas.
 * **Limpeza automática**
   * Espaços extras, linhas e células vazias, caracteres invisíveis.
   * Nomes longos demais e erros de fórmula (`#N/A`) apontados por linha.
@@ -32,10 +32,10 @@ segurança das páginas proíbe o próprio navegador de enviar dados para qualqu
   * Quantidade de vencedores: 1, 3, 5, 10, 20 ou outra.
   * Permitir ou não repetição na mesma rodada.
   * Remover ou não os vencedores das próximas rodadas.
-  * Exibir o resultado em lista ou um a um.
+  * Revelar todos juntos ou um a um.
 * **Experiência do sorteio**
-  * Palco com um rolo de nomes que desacelera até o vencedor.
-  * Destaque "Vencedor · Parabéns!" ou lista em ordem (1º, 2º, 3º).
+  * Roletas de nomes que desaceleram até os vencedores: uma por vencedor, todas girando ao mesmo tempo. Com muitos vencedores, cada roleta seleciona vários (10 vencedores = 5 roletas com 2 faixas cada).
+  * O resultado aparece no mesmo palco: "Vencedor · Parabéns!" ou a lista em ordem (1º, 2º, 3º).
   * Respeita "reduzir movimento".
 * **Resultados**
   * Sortear novamente, copiar, exportar em TXT, CSV ou Excel.
@@ -54,6 +54,9 @@ segurança das páginas proíbe o próprio navegador de enviar dados para qualqu
   * Navegação completa por teclado, foco visível e anúncios para leitores de tela.
   * Contraste WCAG AA verificado automaticamente.
   * Funciona a partir de 320 px de largura.
+* **Layout de trabalho**
+  * Desktop: lista e regras lado a lado ocupando a tela, sem rolagem dupla; "Sortear" sempre visível.
+  * Celular e tablet: seções em abas e "Sortear" na barra do rodapé.
 
 ## Tecnologias
 
@@ -82,7 +85,7 @@ Vercel (arquivos estáticos) ──▶ Navegador
 * `src/features/`: fluxos da interface (participantes, importação, sorteio, resultado, apresentação, sessão).
 * `src/routes/`: as páginas.
 
-Detalhes em [docs/architecture.md](docs/architecture.md).
+Detalhes em [docs/architecture.md](docs/architecture.md). O design system (auditoria, grid, tipografia, cores, movimento e componentes) está em [docs/design.md](docs/design.md).
 
 ---
 
@@ -176,7 +179,7 @@ src/
   utils/       formatação, SEO, acessibilidade
   config.ts    nome do produto, mensagens e limites
 e2e/           testes de ponta a ponta e planilhas de exemplo
-docs/          arquitetura, decisões (ADRs) e segurança
+docs/          arquitetura, design system, decisões (ADRs) e segurança
 vercel.json    configuração de produção
 ```
 
@@ -191,6 +194,8 @@ As principais estão em [docs/decisions.md](docs/decisions.md):
 * **ADR-027:** PDF pela impressão do navegador e imagem PNG desenhada em canvas.
 * **ADR-028:** telão em segunda janela, sincronizado por `BroadcastChannel`.
 * **ADR-029:** por que não há "sorteio verificável" (ainda).
+* **ADR-030:** área do sorteio em colunas no desktop e em abas no celular.
+* **ADR-031:** roletas múltiplas para vários vencedores.
 
 ## Privacidade dos dados
 
@@ -214,4 +219,4 @@ Mais em [docs/security.md](docs/security.md) e na página `/privacidade` do site
 * **Tamanho:** até 10 MB por arquivo e 50 mil participantes. Arquivos grandes dependem da memória do dispositivo.
 * **Telão:** funciona com as duas janelas no mesmo navegador e no mesmo computador (o projetor como segunda tela). Telão em outro aparelho exigiria um servidor para repassar a cena, o que contraria a regra de não enviar dados.
 * **Navegadores:** versões atuais do Chrome, Edge, Firefox e Safari, com JavaScript ativado.
-* **Antes de abrir ao público:** a política de privacidade e os termos precisam de revisão jurídica, e o nome "Sorteia" precisa de busca de marca e de domínio (checklist em [docs/security.md](docs/security.md)).
+* **Antes de abrir ao público:** a política de privacidade e os termos precisam de revisão jurídica, e o nome "Sorteio360" precisa de busca de marca e de domínio (checklist em [docs/security.md](docs/security.md)).

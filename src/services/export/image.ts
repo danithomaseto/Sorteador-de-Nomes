@@ -1,8 +1,9 @@
 /**
  * Imagem do resultado (PNG) para compartilhar em chats e redes sociais, desenhada num <canvas> no
- * próprio navegador, com a identidade do Sorteia. Nada é enviado: o arquivo vai direto para
+ * próprio navegador, com a identidade do produto. Nada é enviado: o arquivo vai direto para
  * download.
  */
+import { APP_NAME } from "~/config";
 import { countLabel, formatNumber } from "~/utils/format";
 import { localDateTime, ordinal, type ExportRound } from "./document";
 
@@ -192,17 +193,21 @@ function drawList(context: CanvasRenderingContext2D, round: ExportRound) {
 function drawFooter(context: CanvasRenderingContext2D, round: ExportRound, timeZone: string) {
   const baseline = CARD.y + CARD.height - CARD.padding + 8;
   const left = CARD.x + CARD.padding;
+  context.font = `700 24px ${SANS}`;
+  const brandWidth = context.measureText(APP_NAME).width;
+  // Logotipo (40 px) + respiro antes do nome.
+  const brandBlock = brandWidth + 48;
+
   context.font = `400 19px ${SANS}`;
   context.fillStyle = COLORS.muted;
   const summary = `${localDateTime(round.drawnAt, timeZone).slice(0, 16)} · ${formatNumber(round.winners.length)} de ${countLabel(round.poolSize, "participante", "participantes")}`;
-  context.fillText(fitText(context, summary, CONTENT_WIDTH - 220), left, baseline);
+  context.fillText(fitText(context, summary, CONTENT_WIDTH - brandBlock - 32), left, baseline);
 
   // Marca no canto direito: logotipo + nome.
   context.font = `700 24px ${SANS}`;
-  const brandWidth = context.measureText("Sorteia").width;
   const right = CARD.x + CARD.width - CARD.padding;
   context.fillStyle = COLORS.text;
-  context.fillText("Sorteia", right - brandWidth, baseline);
+  context.fillText(APP_NAME, right - brandWidth, baseline);
   context.save();
   context.translate(right - brandWidth - 48, baseline - 23);
   context.scale(1.25, 1.25);

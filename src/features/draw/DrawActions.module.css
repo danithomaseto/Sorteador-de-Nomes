@@ -1,0 +1,48 @@
+.actions {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+}
+
+.summary strong {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+}
+
+.muted {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.how {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.how:hover {
+  color: var(--color-text);
+}
+
+.blocker {
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  color: var(--color-text-muted);
+}
+
+.help {
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.help a {
+  color: var(--color-text);
+}

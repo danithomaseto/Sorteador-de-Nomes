@@ -14,11 +14,14 @@ export type StageScene =
   | { readonly phase: "ready"; readonly prepared: boolean }
   | {
       readonly phase: "reel";
-      /** Muda a cada animação, para o telão reiniciar o rolo junto. */
+      /** Muda a cada animação, para o telão reiniciar as roletas junto. */
       readonly id: string;
-      /** Amostra cosmética para o rolo (ver `animationSample`). */
+      /** Amostra cosmética para as roletas (ver `animationSample`). */
       readonly names: readonly string[];
-      readonly finalName: string;
+      /** Vencedores em que as roletas param (no máximo `REEL_LIMIT`). */
+      readonly winners: readonly string[];
+      /** Total de vencedores da rodada. */
+      readonly total: number;
       readonly label: string;
       readonly pace: ReelPace;
     }
@@ -27,6 +30,8 @@ export type StageScene =
 
 /** Vencedores mostrados de uma vez no palco; os demais ficam no resultado e na exportação. */
 export const GRID_LIMIT = 30;
+/** Vencedores enviados para as roletas: mais do que isso não cabe na tela. */
+export const REEL_LIMIT = 30;
 
 interface RoundProgress {
   readonly roundNumber: number;
@@ -48,11 +53,14 @@ export function roundScene({
   const total = winners.length;
   const current = animating === null ? undefined : winners[animating];
   if (animating !== null && current) {
+    // Um a um: uma roleta por vez. Em lista: todas as roletas ao mesmo tempo.
+    const spinning = sequential ? [current] : winners.slice(0, REEL_LIMIT);
     return {
       phase: "reel",
       id: `${String(roundNumber)}:${String(animating)}`,
       names: sample,
-      finalName: current.name,
+      winners: spinning.map((winner) => winner.name),
+      total: spinning.length === 1 ? 1 : total,
       label: sequential
         ? `Vencedor ${String(animating + 1)} de ${String(total)} · sorteando`
         : "Sorteando",

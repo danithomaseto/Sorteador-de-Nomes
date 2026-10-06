@@ -49,6 +49,12 @@ export async function pasteNames(
   await expect(page.getByRole("dialog")).toBeHidden();
 }
 
+/** Em telas estreitas, regras e "Apresentar" ficam na aba "Regras". */
+export async function showRules(page: Page): Promise<void> {
+  const tab = page.getByRole("tab", { name: /^Regras/ });
+  if (await tab.isVisible()) await tab.click();
+}
+
 export function people(count: number, prefix = "Pessoa"): string[] {
   return Array.from(
     { length: count },

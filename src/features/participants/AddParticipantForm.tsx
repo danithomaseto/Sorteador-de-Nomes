@@ -58,7 +58,8 @@ export function AddParticipantForm({ disabled = false }: { disabled?: boolean })
           ref={inputRef}
           className={styles.field}
           label="Nome do participante"
-          placeholder="Ex.: Maria Souza"
+          hideLabel
+          placeholder="Nome do participante"
           autoComplete="off"
           spellCheck={false}
           enterKeyHint="done"

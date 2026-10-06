@@ -1,60 +1,148 @@
+/* Desktop: ocupa a altura que sobra no painel e rola por dentro. */
+.frame {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 12rem;
+}
+
 .scroller {
   position: relative;
-  max-height: min(60vh, 36rem);
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
   overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .scroller:focus-visible {
-  border-radius: var(--radius-md);
+  box-shadow: none;
+}
+
+/* Foco da área de rolagem desenhado por cima das linhas (que têm fundo opaco). */
+.frame:has(.scroller:focus-visible)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  box-shadow: inset 0 0 0 2px var(--color-focus);
+  pointer-events: none;
+}
+
+/* Celular: a lista faz parte da página. */
+.flow {
+  position: relative;
 }
 
 .list {
+  --lane-gap: var(--space-5);
+  --row-height: 2.75rem;
+
   position: relative;
   width: 100%;
   margin: 0;
 }
 
+@media (pointer: coarse) {
+  .list {
+    --row-height: 3.25rem;
+  }
+}
+
+/* Linha de altura fixa: as colunas ficam alinhadas e a rolagem é previsível. */
 .row {
   position: absolute;
   top: 0;
-  left: 0;
-  display: grid;
-  grid-template-columns: minmax(3ch, auto) 1fr auto;
+  left: calc(var(--lane) * (100% + var(--lane-gap)) / var(--lanes));
+  display: flex;
   align-items: center;
   gap: var(--space-3);
-  width: 100%;
-  min-height: 3.25rem;
-  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
-  border-bottom: var(--border-width) solid var(--color-border);
+  width: calc((100% - (var(--lanes) - 1) * var(--lane-gap)) / var(--lanes));
+  height: var(--row-height);
+  padding-inline: var(--space-2);
+  border-bottom: var(--border-width) solid var(--color-border-subtle);
+  container-type: inline-size;
+  /* Fundo opaco: os botões sobrepostos ao fim da linha se misturam a ele. O painel define a
+     superfície (--list-surface). */
+  --row-bg: var(--list-surface, var(--color-surface));
+
+  background: var(--row-bg);
+}
+
+.row:hover,
+.row:focus-within {
+  --row-bg: color-mix(in srgb, var(--list-surface, var(--color-surface)), var(--color-text) 4%);
 }
 
 .index {
+  flex: none;
+  min-width: 3.5ch;
   font-size: var(--text-sm);
   color: var(--color-text-muted);
   text-align: right;
 }
 
-.main {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-1) var(--space-2);
-  min-width: 0;
+.name {
+  flex: 1 1 auto;
+  /* O nome é o conteúdo principal: os selos encolhem antes dele. */
+  min-width: min(10ch, 45%);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.name {
-  overflow-wrap: anywhere;
+/* Selos não encolhem (o nome é que termina em reticências); em colunas estreitas viram ícone. */
+.badges {
+  display: flex;
+  flex: none;
+  gap: var(--space-1);
+}
+
+/* Colunas estreitas: os selos viram só ícone (o texto continua para leitores de tela). */
+@container (max-width: 420px) {
+  .badgeText {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
 }
 
 .removed .name {
   color: var(--color-text-muted);
 }
 
+/*
+ * Editar e excluir aparecem ao passar o mouse ou ao receber foco, sobre o fim da linha — 500 nomes
+ * não viram mil ícones. Em telas de toque (sem "hover"), ficam sempre visíveis.
+ */
 .actions {
+  position: absolute;
+  inset-block: 0;
+  right: 0;
   display: flex;
+  align-items: center;
   gap: var(--space-1);
+  padding-left: var(--space-6);
+  padding-right: var(--space-1);
+  background: linear-gradient(to right, transparent, var(--row-bg) 1.5rem);
+  opacity: 0;
+  transition: opacity var(--duration-micro) var(--ease-standard);
+}
+
+.row:hover .actions,
+.row:focus-within .actions {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .actions {
+    position: static;
+    padding: 0;
+    background: none;
+    opacity: 1;
+  }
 }

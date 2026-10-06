@@ -1,5 +1,10 @@
 .start {
   display: grid;
+  gap: var(--space-4);
+}
+
+.options {
+  display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
   gap: var(--space-3);
 }
@@ -10,11 +15,11 @@
   align-content: start;
   justify-items: start;
   gap: var(--space-2);
-  min-height: 9.5rem;
+  min-height: 9rem;
   padding: var(--space-5);
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: var(--color-surface-sunken);
+  background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
   text-align: left;
@@ -26,7 +31,7 @@
 
 .option:hover {
   border-color: var(--color-border-strong);
-  background: var(--color-surface);
+  background: color-mix(in srgb, var(--color-surface), var(--color-text) 3%);
 }
 
 .option:focus-visible,
@@ -35,24 +40,21 @@
   box-shadow: var(--focus-ring);
 }
 
+/* Área de soltar arquivo: tracejado indica que aceita arrastar. */
 .drop {
   border-style: dashed;
-  border-width: 2px;
+  border-color: var(--color-border-strong);
 }
 
 .dragging {
   border-color: var(--color-text);
-  background: var(--color-surface);
+  border-style: solid;
+  background: var(--color-selected);
 }
 
 .icon {
-  display: grid;
-  place-items: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: var(--radius-md);
-  background: var(--color-primary);
-  color: var(--color-on-primary);
+  margin-bottom: var(--space-1);
+  color: var(--color-text-muted);
 }
 
 .title {
@@ -78,7 +80,6 @@
 
 .privacy {
   display: flex;
-  grid-column: 1 / -1;
   gap: var(--space-2);
   align-items: flex-start;
   font-size: var(--text-sm);

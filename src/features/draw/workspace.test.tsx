@@ -2,6 +2,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { ParticipantsPanel } from "~/features/participants/ParticipantsPanel";
 import { renderWithApp } from "~/test/render";
+import { DrawActions } from "./DrawActions";
 import { DrawSettingsPanel } from "./DrawSettingsPanel";
 
 function Workspace() {
@@ -9,6 +10,7 @@ function Workspace() {
     <>
       <ParticipantsPanel />
       <DrawSettingsPanel />
+      <DrawActions />
     </>
   );
 }

@@ -1,21 +1,37 @@
+/*
+ * Celular: o painel é a própria página (sem moldura). Desktop: uma superfície que ocupa a coluna
+ * inteira, com a lista preenchendo a altura que sobra.
+ */
 .panel {
-  display: grid;
+  --list-surface: var(--color-bg);
+
+  display: flex;
+  flex-direction: column;
   gap: var(--space-4);
-  align-content: start;
   min-width: 0;
-  padding: var(--space-5);
+}
+
+.fill {
+  --list-surface: var(--color-surface);
+
+  min-height: 0;
+  height: 100%;
+  padding: var(--space-5) var(--space-5) 0;
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
+  /* A lista encosta nas bordas laterais do painel, como uma tabela. */
+  overflow: hidden;
 }
 
 .dropTarget {
-  border-style: dashed;
-  border-color: var(--color-text);
+  outline: 2px dashed var(--color-text);
+  outline-offset: -2px;
 }
 
 .header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
@@ -28,37 +44,41 @@
 }
 
 .count {
-  padding: 0 var(--space-2);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-sunken);
-  font-size: var(--text-md);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-muted);
 }
 
-.importActions {
+.headerActions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
 }
 
-.listArea {
+/* Adicionar e filtrar: lado a lado quando há espaço. */
+.fields {
   display: grid;
   gap: var(--space-3);
-  min-width: 0;
+  align-items: start;
 }
 
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3) var(--space-5);
+@media (min-width: 768px) {
+  .fields {
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+    column-gap: var(--space-5);
+  }
 }
 
 .search {
-  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.notices {
+  display: grid;
+  gap: var(--space-3);
 }
 
 .resultCount {
-  min-height: var(--leading-sm);
   font-size: var(--text-sm);
   line-height: var(--leading-sm);
   color: var(--color-text-muted);
@@ -68,18 +88,38 @@
   display: none;
 }
 
+.listArea {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* No desktop a lista preenche a altura e vai até as bordas do painel, como uma tabela. */
+.fill .listArea {
+  flex: 1;
+  min-height: 0;
+  margin-inline: calc(var(--space-5) * -1);
+  padding-inline: var(--space-3);
+  border-top: var(--border-width) solid var(--color-border-subtle);
+}
+
 .noResults {
-  padding: var(--space-5);
+  padding: var(--space-6) var(--space-4);
   text-align: center;
   color: var(--color-text-muted);
 }
 
+.listFooter {
+  display: flex;
+  justify-content: center;
+}
+
 @media (max-width: 479px) {
-  .panel {
-    padding: var(--space-4);
+  .headerActions {
+    width: 100%;
   }
 
-  .importActions > * {
+  .headerActions > * {
     flex: 1 1 auto;
   }
 }

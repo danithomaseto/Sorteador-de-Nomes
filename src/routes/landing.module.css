@@ -85,9 +85,10 @@
   color: var(--color-text-muted);
 }
 
+/* Recursos: lista tipográfica com divisórias, sem cartões nem ícones decorativos. */
 .features {
   display: grid;
-  gap: var(--space-4);
+  column-gap: var(--space-7);
   margin: 0;
 }
 
@@ -95,25 +96,13 @@
   display: grid;
   align-content: start;
   gap: var(--space-2);
-  padding: var(--space-5);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
+  padding-block: var(--space-5);
+  border-top: var(--border-width) solid var(--color-border);
 }
 
 .feature p {
+  max-width: 34rem;
   color: var(--color-text-muted);
-}
-
-.featureIcon {
-  display: grid;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  margin-bottom: var(--space-2);
-  border-radius: var(--radius-md);
-  background: var(--color-primary);
-  color: var(--color-on-primary);
 }
 
 .trust {
@@ -145,11 +134,17 @@
 }
 
 .final {
-  display: grid;
-  justify-items: center;
-  gap: var(--space-4);
-  padding-block: var(--space-8) var(--space-4);
-  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  padding-block: var(--space-7) var(--space-4);
+}
+
+.finalText {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
 }
 
 @media (min-width: 768px) {

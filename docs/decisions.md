@@ -136,7 +136,7 @@ Notas de versão:
 
 ## ADR-016 — Identidade visual
 
-**Decisão.** Nome provisório **Sorteia** (constante `APP_NAME`; trocar não exige refatoração).
+**Decisão.** Nome do produto: **Sorteio360** (constante `APP_NAME`; trocar não exige refatoração). Nomes anteriores: "Sorteia" (provisório) e "Sorteia Fácil".
 Identidade "bilhete": tinta `#1B1A17` + amarelo `#F2B300`, fundo papel `#F6F5F1`. Tipografia Archivo
 (variável, com eixo de largura para nomes longos) e IBM Plex Mono para numerais. Fontes servidas pelo
 próprio site (sem CDN de terceiros).
@@ -316,3 +316,35 @@ apresentação e telão), das rodadas numeradas que não podem ser refeitas e da
 hora, regras e método. O motor já aceita uma fonte de aleatoriedade injetável e registra o algoritmo
 em cada rodada; se um dia houver um terceiro confiável (ex.: beacon público de aleatoriedade), a
 função pode ser adicionada sem mudar o motor.
+
+## ADR-030 — Área do sorteio em colunas (desktop) e abas (celular)
+
+**Contexto.** A área do sorteio tinha largura máxima de 1152 px, a lista rolava dentro de uma página
+que também rolava (rolagem dupla, ~11 nomes visíveis) e, em notebooks, o botão "Sortear" ficava
+abaixo da dobra. No celular, as regras ficavam depois de toda a lista.
+**Decisão.** A partir de 1024 px, a área do sorteio ocupa exatamente a altura da tela: a lista à
+esquerda rola por dentro e se distribui em colunas conforme a largura (até 4); à direita, regras e
+histórico rolam acima de uma base fixa com disponíveis, "Sortear" e "Apresentar". Abaixo de
+1024 px, as seções viram abas (padrão WAI-ARIA, fixas no topo), a lista rola com a própria página
+(sem área de rolagem presa) e "Sortear" fica na barra do rodapé. A escolha entre os dois arranjos é
+feita por media query em JavaScript (`useMediaQuery`), porque muda a estrutura, não só o estilo.
+**Consequências.** Mais nomes visíveis (de ~11 para 40 a 90 em notebooks e monitores) e a ação
+principal sempre à vista. A lista tem linhas de altura fixa (colunas alinhadas, rolagem previsível);
+nomes longos terminam em reticências na linha (o nome completo continua no DOM e no `title`).
+
+## ADR-031 — Roletas múltiplas para vários vencedores
+
+**Contexto.** Com vários vencedores, uma única roleta parava em um nome e a lista aparecia em
+seguida: a animação não representava o resultado. Pedido: todas as roletas ao mesmo tempo, uma por
+vencedor, ou várias faixas por roleta.
+**Decisão.** `reelLayout` distribui os vencedores em roletas lado a lado: quantas couberem na
+largura (mínimo de 172 px cada; 220 px no telão, até 6) e, se necessário, várias faixas por roleta
+(até 5; 4 no telão), com a última linha o mais cheia possível (7 vencedores = 4 roletas, 2 + 2 + 2 +
+1). A ordem do sorteio é lida linha a linha, como na lista do resultado. Acima da capacidade (30), as
+roletas mostram os primeiros e avisam que a lista completa vem em seguida. Cada roleta percorre mais
+linhas que a anterior e para depois dela (cascata de no máximo 1 s). Na revelação "um a um", segue
+uma roleta por vencedor.
+**Consequências.** A animação mostra exatamente quem ganhou, em qualquer quantidade; o telão recebe
+no máximo 30 nomes por mensagem. A animação continua sem decidir nada (o resultado já está
+registrado) e respeita "reduzir movimento".
+

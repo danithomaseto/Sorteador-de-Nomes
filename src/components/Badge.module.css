@@ -8,6 +8,19 @@
   line-height: var(--leading-caption);
   font-weight: var(--weight-semibold);
   white-space: nowrap;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.badge svg {
+  flex: none;
+}
+
+/* Em espaços estreitos (ex.: colunas da lista), o texto termina em reticências. */
+.text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .neutral {

@@ -1,29 +1,32 @@
-import { cx } from "~/components/cx";
 import styles from "./ResultPreview.module.css";
 
-const EXAMPLE = ["Maria Souza", "João Silva", "Carlos Lima"];
+// Dados fictícios: três roletas paradas nos vencedores, como no sorteio de verdade.
+const REELS = [
+  { above: "Pedro Alves", winner: "Maria Souza", below: "Rafael Dias" },
+  { above: "Ana Rocha", winner: "João Silva", below: "Beatriz Lopes" },
+  { above: "Luiza Prado", winner: "Carlos Lima", below: "Tiago Melo" },
+];
 
-/** Ilustração feita com a própria interface: um exemplo de resultado (dados fictícios). */
+/** Ilustração feita com a própria interface: o palco do sorteio com três vencedores. */
 export function ResultPreview() {
   return (
     <figure className={styles.figure}>
-      <div className={styles.ticket} aria-hidden="true">
-        <p className={styles.eyebrow}>Confraternização da equipe</p>
-        <p className={styles.title}>Resultado · Rodada 1</p>
-        <ol className={styles.list}>
-          {EXAMPLE.map((name, index) => (
-            <li key={name} className={cx(styles.row, index === 0 && styles.first)}>
-              <span className={cx(styles.position, "numeric")}>
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <span>{name}</span>
-            </li>
+      <div className={styles.stage} aria-hidden="true">
+        <p className={styles.label}>Vencedores</p>
+        <div className={styles.reels}>
+          {REELS.map((reel) => (
+            <div key={reel.winner} className={styles.reel}>
+              <span className={styles.context}>{reel.above}</span>
+              <span className={styles.band}>{reel.winner}</span>
+              <span className={styles.context}>{reel.below}</span>
+            </div>
           ))}
-        </ol>
-        <p className={styles.meta}>3 sorteados · 127 participavam · sem repetição</p>
+        </div>
+        <p className={styles.meta}>Confraternização da equipe · 3 de 127 participantes</p>
       </div>
       <figcaption className="visually-hidden">
-        Exemplo de resultado: três vencedores numerados de 01 a 03, com os dados da rodada.
+        Exemplo de sorteio: três roletas paradas nos vencedores Maria Souza, João Silva e Carlos
+        Lima.
       </figcaption>
     </figure>
   );

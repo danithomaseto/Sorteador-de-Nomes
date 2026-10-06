@@ -1,0 +1,59 @@
+/* Abas sublinhadas: a ativa tem texto pleno e um traço (não depende só de cor). */
+.list {
+  display: flex;
+  gap: var(--space-1);
+  border-bottom: var(--border-width) solid var(--color-border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  flex: 1 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--control-lg);
+  padding: 0 var(--space-3);
+  border: 0;
+  background: none;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: color var(--duration-micro) var(--ease-standard);
+}
+
+.tab:hover {
+  color: var(--color-text);
+}
+
+.tab[aria-selected="true"] {
+  color: var(--color-text);
+}
+
+.tab[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  inset: auto var(--space-2) -1px;
+  height: 2px;
+  background: var(--color-text);
+}
+
+.tab:focus-visible {
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 0 2px var(--color-focus);
+}
+
+@media (max-width: 399px) {
+  .tab {
+    padding: 0 var(--space-2);
+    font-size: var(--text-sm);
+  }
+}
+
+.count {
+  font-weight: var(--weight-regular);
+  color: var(--color-text-muted);
+}

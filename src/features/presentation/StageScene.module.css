@@ -97,6 +97,8 @@
 }
 
 .position {
+  flex: none;
+  min-width: 1.9em;
   color: var(--color-primary);
   font-size: clamp(1.25rem, 2.5vw, 2rem);
 }

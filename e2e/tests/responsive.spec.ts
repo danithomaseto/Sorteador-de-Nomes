@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 import { expect, test } from "./fixtures";
-import { expectAccessible, openDraw, pasteNames, people } from "./helpers";
+import { expectAccessible, openDraw, pasteNames, people, showRules } from "./helpers";
 
 // Nomes reais podem ser longos e sem espaços (sobrenomes compostos com hífen, apelidos colados).
 const LONG_NAMES = [
@@ -37,6 +37,9 @@ for (const width of [320, 768]) {
       expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);
 
       await page.getByRole("link", { name: "Voltar aos participantes" }).click();
+      await showRules(page);
+      expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);
+      await expectAccessible(page);
       await page.getByRole("link", { name: "Apresentar em tela cheia" }).click();
       await expect(page.getByText("Preparado?")).toBeVisible();
       await page.keyboard.press("Space");

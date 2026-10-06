@@ -17,7 +17,7 @@ export function Badge({
   return (
     <span className={cx(styles.badge, styles[tone])}>
       {icon ? <Icon name={icon} size={14} /> : null}
-      {children}
+      <span className={styles.text}>{children}</span>
     </span>
   );
 }

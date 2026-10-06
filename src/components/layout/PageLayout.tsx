@@ -6,31 +6,42 @@ import { Icon } from "../Icon";
 import { Logo } from "../Logo";
 import styles from "./PageLayout.module.css";
 
-export function PageLayout({ children }: { children: ReactNode }) {
+interface PageLayoutProps {
+  /**
+   * "page": páginas de conteúdo (largura de leitura). "wide": telas de trabalho, com mais largura.
+   * "app": área do sorteio — no desktop ocupa exatamente a altura da tela e cada painel rola por
+   * conta própria (sem rolagem dupla); no celular, segue o fluxo normal da página.
+   */
+  layout?: "page" | "wide" | "app";
+  children: ReactNode;
+}
+
+export function PageLayout({ children, layout = "page" }: PageLayoutProps) {
+  const container = layout === "page" ? "container" : "app-container";
   return (
-    <div className={styles.page}>
+    <div className={cx(styles.page, layout === "app" && styles.app)}>
       <a href="#conteudo" className="skip-link" data-print="hide">
         Pular para o conteúdo
       </a>
-      <SiteHeader />
+      <SiteHeader container={container} />
       <main id="conteudo" tabIndex={-1} className={styles.main}>
         {children}
       </main>
-      <SiteFooter />
+      <SiteFooter container={container} />
     </div>
   );
 }
 
-function SiteHeader() {
+function SiteHeader({ container }: { container: string }) {
   return (
     <header className={styles.header} data-print="hide">
-      <div className={cx("container", styles.headerInner)}>
+      <div className={cx(container, styles.headerInner)}>
         <Link to="/" className={styles.brand} aria-label={`${APP_NAME}, página inicial`}>
           <Logo />
         </Link>
         <nav aria-label="Principal">
           <ul role="list" className={styles.nav}>
-            <li>
+            <li className={styles.navSecondary}>
               <NavLink
                 to="/sorteio"
                 className={({ isActive }) => cx(styles.navLink, isActive && styles.active)}
@@ -53,10 +64,10 @@ function SiteHeader() {
   );
 }
 
-function SiteFooter() {
+function SiteFooter({ container }: { container: string }) {
   return (
     <footer className={styles.footer} data-print="hide">
-      <div className={cx("container", styles.footerInner)}>
+      <div className={cx(container, styles.footerInner)}>
         <p className={styles.privacy}>
           <Icon name="lock" size={16} />
           <span>{PRIVACY_MESSAGE}</span>

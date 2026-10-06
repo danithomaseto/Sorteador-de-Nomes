@@ -1,8 +1,12 @@
 /*
- * Design tokens do Sorteia.
+ * Design tokens do Sorteio360 — a única fonte de valores visuais (ver docs/design.md).
  * Identidade "bilhete": tinta + amarelo, fundo papel. Contraste verificado (WCAG AA):
  * textos ≥ 4,5:1 e bordas de componentes ≥ 3:1, nos temas claro e escuro.
- * O amarelo nunca é usado como cor de texto sobre fundo claro (1,9:1), só como preenchimento.
+ * Regra de cor: o amarelo marca só duas coisas — a ação de sortear e o que foi sorteado.
+ * Nunca é cor de texto sobre fundo claro (1,9:1), só preenchimento.
+ *
+ * Pontos de quebra (em media queries, que não aceitam variáveis):
+ * 480 celular grande · 768 tablet · 1024 notebook (área do sorteio em colunas) · 1280 · 1536.
  */
 :root {
   color-scheme: light;
@@ -15,11 +19,18 @@
   /* Cores — tema claro */
   --color-bg: #f6f5f1;
   --color-surface: #ffffff;
+  /* Camadas sobrepostas (menus, diálogos, avisos). */
+  --color-surface-raised: #ffffff;
   --color-surface-sunken: #eeece6;
   --color-text: #1b1a17;
   --color-text-muted: #5f5d57;
   --color-border: #dddad2;
+  /* Divisórias dentro de listas: mais leves que bordas de componentes. */
+  --color-border-subtle: #e9e7e0;
   --color-border-strong: #868379;
+  /* Realce de passagem do mouse e de item selecionado, sobre qualquer superfície. */
+  --color-hover: rgb(27 26 23 / 0.05);
+  --color-selected: rgb(27 26 23 / 0.08);
   --color-primary: #f2b300;
   --color-primary-hover: #e0a500;
   --color-primary-active: #cc9600;
@@ -33,6 +44,9 @@
   --color-warning-bg: #fbf0dc;
   --color-error: #b3261e;
   --color-error-bg: #fbe9e7;
+  --color-info-bg: #eeece6;
+  --color-disabled-bg: #e9e7e1;
+  --color-disabled-text: #8f8c84;
   --color-focus: #1b1a17;
   --color-overlay: rgb(17 17 15 / 0.48);
   /* "Palco" do sorteio: escuro nos dois temas (contraste dos textos ≥ 7:1). */
@@ -43,27 +57,34 @@
   /* Fundo da página, mesmo dentro de áreas que redefinem --color-bg (resolvido na raiz). */
   --color-page: var(--color-bg);
 
-  /* Tipografia */
+  /* Tipografia: uma família, três pesos, escala de 12 a 72 px. */
   --text-caption: 0.75rem;
   --leading-caption: 1rem;
   --text-sm: 0.875rem;
   --leading-sm: 1.25rem;
   --text-md: 1rem;
   --leading-md: 1.5rem;
+  --text-lead: 1.125rem;
+  --leading-lead: 1.75rem;
+  /* Títulos de seção (h2). */
   --text-lg: 1.25rem;
   --leading-lg: 1.75rem;
-  --text-xl: 1.75rem;
-  --leading-xl: 2.125rem;
-  --text-display: clamp(2.5rem, 6vw, 4.5rem);
+  /* Título da página (h1). */
+  --text-xl: clamp(1.625rem, 1.25rem + 1vw, 2.125rem);
+  --leading-xl: 1.15;
+  --text-display: clamp(2.5rem, 1.5rem + 4vw, 4.5rem);
   --text-result: clamp(3rem, 9vw, 10rem);
   --weight-regular: 400;
-  --weight-medium: 520;
-  --weight-semibold: 620;
+  --weight-semibold: 600;
   --weight-bold: 720;
+  --tracking-tight: -0.015em;
+  /* Rótulos curtos em caixa alta ("SORTEANDO", "VENCEDOR"). */
+  --tracking-caps: 0.12em;
   --stretch-expanded: 112%;
   --stretch-condensed: 82%;
 
-  /* Espaçamento (base 4px) */
+  /* Espaçamento (base 4px): 4 micro · 8 pequeno · 12 compacto · 16 padrão · 24 confortável ·
+     32 seção pequena · 48 seção média · 64 e 96 seções principais. */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -74,30 +95,50 @@
   --space-8: 4rem;
   --space-9: 6rem;
 
-  /* Forma */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  /* Grid */
+  --gutter: clamp(1rem, 0.4rem + 2.2vw, 2.5rem);
+  /* Área do sorteio: ferramenta de trabalho, usa a largura da tela até 1600 px. */
+  --app-max: 100rem;
+  /* Páginas de conteúdo e apresentação do produto. */
+  --content-max: 72rem;
+  --reading-max: 40rem;
+  --header-height: 3.5rem;
+  --aside-width: clamp(20rem, 14rem + 9vw, 25rem);
+
+  /* Forma: raio cresce com o tamanho do elemento. */
+  --radius-xs: 4px; /* selos, teclas */
+  --radius-sm: 6px; /* opções segmentadas, chips */
+  --radius-md: 8px; /* botões, campos */
+  --radius-lg: 12px; /* painéis, diálogos, menus */
+  --radius-xl: 16px; /* palco do sorteio */
   --radius-full: 999px;
   --border-width: 1px;
   --focus-ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-focus);
 
   /* Sombras: só em camadas sobrepostas */
-  --shadow-overlay: 0 12px 32px rgb(27 26 23 / 0.16), 0 2px 6px rgb(27 26 23 / 0.08);
+  --shadow-overlay: 0 12px 32px rgb(27 26 23 / 0.14), 0 2px 6px rgb(27 26 23 / 0.08);
   --shadow-raised: 0 -4px 16px rgb(27 26 23 / 0.08);
+
+  /* Camadas */
+  --z-sticky: 10;
+  --z-bar: 20;
+  --z-menu: 30;
+  --z-toast: 50;
 
   /* Tamanhos */
   --control-sm: 2rem;
   --control-md: 2.5rem;
   --control-lg: 3rem;
   --control-xl: 4.5rem;
-  --content-max: 72rem;
-  --reading-max: 42rem;
 
-  /* Movimento */
-  --duration-micro: 120ms;
-  --duration-ui: 200ms;
+  /* Movimento: rápido e discreto; comunica mudança, não decora. */
+  --duration-micro: 120ms; /* hover, pressionar */
+  --duration-ui: 200ms; /* chaves, menus, avisos */
+  --duration-layout: 320ms; /* troca de conteúdo, resultado */
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --motion-distance: 6px;
 }
 
 /* Telas de toque: alvos de pelo menos 44px. */
@@ -114,11 +155,18 @@
     color-scheme: dark;
     --color-bg: #11110f;
     --color-surface: #1b1a17;
+    --color-surface-raised: #24231f;
     --color-surface-sunken: #24231f;
     --color-text: #f5f3ee;
     --color-text-muted: #a9a69e;
     --color-border: #36342f;
+    --color-border-subtle: #2a2925;
     --color-border-strong: #77746c;
+    --color-hover: rgb(245 243 238 / 0.06);
+    --color-selected: rgb(245 243 238 / 0.1);
+    --color-info-bg: #24231f;
+    --color-disabled-bg: #24231f;
+    --color-disabled-text: #6f6c65;
     --color-on-primary: #11110f;
     --color-secondary: #f5f3ee;
     --color-secondary-hover: #dedbd3;
@@ -131,7 +179,7 @@
     --color-error-bg: #2c1311;
     --color-focus: #f2b300;
     --color-overlay: rgb(0 0 0 / 0.64);
-    --shadow-overlay: 0 12px 32px rgb(0 0 0 / 0.5), 0 2px 6px rgb(0 0 0 / 0.4);
+    --shadow-overlay: 0 12px 32px rgb(0 0 0 / 0.5), 0 0 0 1px rgb(255 255 255 / 0.06);
   }
 }
 
@@ -139,11 +187,18 @@
   color-scheme: dark;
   --color-bg: #11110f;
   --color-surface: #1b1a17;
+  --color-surface-raised: #24231f;
   --color-surface-sunken: #24231f;
   --color-text: #f5f3ee;
   --color-text-muted: #a9a69e;
   --color-border: #36342f;
+  --color-border-subtle: #2a2925;
   --color-border-strong: #77746c;
+  --color-hover: rgb(245 243 238 / 0.06);
+  --color-selected: rgb(245 243 238 / 0.1);
+  --color-info-bg: #24231f;
+  --color-disabled-bg: #24231f;
+  --color-disabled-text: #6f6c65;
   --color-on-primary: #11110f;
   --color-secondary: #f5f3ee;
   --color-secondary-hover: #dedbd3;
@@ -156,7 +211,7 @@
   --color-error-bg: #2c1311;
   --color-focus: #f2b300;
   --color-overlay: rgb(0 0 0 / 0.64);
-  --shadow-overlay: 0 12px 32px rgb(0 0 0 / 0.5), 0 2px 6px rgb(0 0 0 / 0.4);
+  --shadow-overlay: 0 12px 32px rgb(0 0 0 / 0.5), 0 0 0 1px rgb(255 255 255 / 0.06);
 }
 
 /* Impressão sempre no tema claro (mesmo com o sistema no modo escuro), em papel branco. */

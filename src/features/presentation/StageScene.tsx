@@ -7,7 +7,7 @@ import styles from "./StageScene.module.css";
 interface StageSceneProps {
   scene: Scene;
   drawName: string;
-  /** Fim do rolo. No telão é só espelho: quem avança é o modo apresentação. */
+  /** Fim das roletas. No telão é só espelho: quem avança é o modo apresentação. */
   onReelDone?: () => void;
 }
 
@@ -39,7 +39,8 @@ export function StageScene({ scene, drawName, onReelDone }: StageSceneProps) {
           <DrawReel
             key={scene.id}
             names={scene.names}
-            finalName={scene.finalName}
+            winners={scene.winners}
+            total={scene.total}
             label={scene.label}
             pace={scene.pace}
             size="xl"
