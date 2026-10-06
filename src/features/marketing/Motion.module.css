@@ -1,0 +1,23 @@
+/* Janela de um algarismo: a faixa desliza por trás dela. */
+.slot {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  line-height: 1;
+  vertical-align: top;
+}
+
+.slotStrip {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+
+.slotStrip > span {
+  display: block;
+  height: 1em;
+}
+
+.count {
+  font-variant-numeric: tabular-nums lining-nums;
+}

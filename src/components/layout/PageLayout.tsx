@@ -36,7 +36,12 @@ function SiteHeader({ container }: { container: string }) {
   return (
     <header className={styles.header} data-print="hide">
       <div className={cx(container, styles.headerInner)}>
-        <Link to="/" className={styles.brand} aria-label={`${APP_NAME}, página inicial`}>
+        <Link
+          to="/"
+          className={styles.brand}
+          aria-label={`${APP_NAME}, página inicial`}
+          viewTransition
+        >
           <Logo />
         </Link>
         <nav aria-label="Principal">
@@ -44,6 +49,7 @@ function SiteHeader({ container }: { container: string }) {
             <li className={styles.navSecondary}>
               <NavLink
                 to="/sorteio"
+                viewTransition
                 className={({ isActive }) => cx(styles.navLink, isActive && styles.active)}
               >
                 Sorteio
@@ -52,6 +58,7 @@ function SiteHeader({ container }: { container: string }) {
             <li>
               <NavLink
                 to="/como-funciona"
+                viewTransition
                 className={({ isActive }) => cx(styles.navLink, isActive && styles.active)}
               >
                 Como funciona

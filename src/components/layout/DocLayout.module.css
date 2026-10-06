@@ -45,6 +45,27 @@
   margin-bottom: var(--space-3);
 }
 
+.tocList {
+  position: relative;
+}
+
+/* Traço da seção atual: desliza pelo trilho ao rolar ou clicar. */
+.indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  background: var(--color-text);
+  opacity: 0;
+  transition:
+    transform var(--duration-layout) var(--ease-standard),
+    height var(--duration-layout) var(--ease-standard);
+}
+
+.ready {
+  opacity: 1;
+}
+
 .tocLink {
   display: block;
   padding: var(--space-1) 0 var(--space-1) var(--space-3);
@@ -63,9 +84,13 @@
 }
 
 .tocLink[aria-current="location"] {
-  border-left-color: var(--color-text);
   color: var(--color-text);
   font-weight: var(--weight-semibold);
+}
+
+/* Sem JavaScript (antes do indicador), o próprio item marca a seção. */
+.tocList:not(:has(.ready)) .tocLink[aria-current="location"] {
+  border-left-color: var(--color-text);
 }
 
 .summary {

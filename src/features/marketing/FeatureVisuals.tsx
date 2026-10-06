@@ -2,32 +2,20 @@
  * Recortes da interface real para a página inicial (dados fictícios). Nada de ilustração: cada
  * bloco mostra como a função aparece no produto.
  */
+import { useEffect, useRef, useState } from "react";
 import { cx } from "~/components/cx";
+import { prefersReducedMotion, useInView, usePageVisible } from "~/utils/motion";
+import { demoRounds } from "./demoNames";
 import styles from "./FeatureVisuals.module.css";
+import { LiveReels } from "./LiveReels";
+import { CountUp } from "./Motion";
 
-const MINI_REELS = [
-  ["Rui Barros", "Maria Souza", "Bia Torres", "Igor Matos"],
-  ["Ana Rocha", "João Silva", "Davi Nunes", "Nina Freire"],
-  ["Luiza Prado", "Carlos Lima", "Lara Costa", "Tiago Melo"],
-] as const;
+// 6 vencedores por rodada: 3 roletas com 2 faixas.
+const TILE_ROUNDS = demoRounds(3, 2, 4, 17);
 
-/** Três roletas paradas em dois vencedores cada. */
+/** Três roletas em funcionamento, dois vencedores em cada. */
 export function ReelsVisual() {
-  return (
-    <div className={styles.stage} aria-hidden="true">
-      <p className={styles.stageLabel}>6 vencedores</p>
-      <div className={styles.reels}>
-        {MINI_REELS.map(([above, first, second, below]) => (
-          <div key={first} className={styles.reel}>
-            <span className={styles.context}>{above}</span>
-            <span className={styles.band}>{first}</span>
-            <span className={styles.band}>{second}</span>
-            <span className={styles.context}>{below}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  return <LiveReels rounds={TILE_ROUNDS} size="tile" />;
 }
 
 const SHEET = [
@@ -58,12 +46,55 @@ export function SheetVisual() {
   );
 }
 
-/** Uma tela de projetor com o vencedor. */
+const SCREEN_NAMES = ["Maria Souza", "Heitor Campos", "Lívia Teles", "Theo Garcia", "Alice Moura"];
+const ROLL_MS = 900;
+const ROLL_STEP_MS = 80;
+const SHOW_MS = 2600;
+
+/**
+ * Uma tela de projetor que sorteia em laço: os nomes passam rápido ("Sorteando…") e param num
+ * vencedor ("Parabéns!"). Parada com "reduzir movimento" ou fora da tela.
+ */
 export function ScreenVisual() {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(rootRef, { threshold: 0.5 });
+  const pageVisible = usePageVisible();
+  const [winner, setWinner] = useState(0);
+  const [rolling, setRolling] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!inView || !pageVisible || prefersReducedMotion()) return undefined;
+    let roll = 0;
+    let step = 0;
+    let timer = window.setTimeout(function next() {
+      if (step * ROLL_STEP_MS < ROLL_MS) {
+        roll = (roll + 2) % SCREEN_NAMES.length;
+        setRolling(roll);
+        step += 1;
+        timer = window.setTimeout(next, ROLL_STEP_MS);
+        return;
+      }
+      setRolling(null);
+      setWinner((current) => (current + 1) % SCREEN_NAMES.length);
+      step = 0;
+      timer = window.setTimeout(next, SHOW_MS);
+    }, SHOW_MS);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [inView, pageVisible]);
+
+  const name = SCREEN_NAMES[rolling ?? winner] ?? "";
   return (
-    <div className={styles.screen} aria-hidden="true">
-      <span className={styles.screenLabel}>Parabéns!</span>
-      <span className={styles.screenName}>Maria Souza</span>
+    <div ref={rootRef} className={styles.screen} aria-hidden="true">
+      <span className={styles.screenLabel}>{rolling === null ? "Parabéns!" : "Sorteando…"}</span>
+      {rolling === null ? (
+        <span key={`v${String(winner)}`} className={cx(styles.screenName, styles.landed)}>
+          {name}
+        </span>
+      ) : (
+        <span className={styles.screenRolling}>{name}</span>
+      )}
     </div>
   );
 }
@@ -83,11 +114,11 @@ export function FormatsVisual() {
   );
 }
 
-/** Um número grande, com a unidade ao lado. */
-export function FigureVisual({ value, unit }: { value: string; unit: string }) {
+/** Um número grande (que conta até o valor ao aparecer), com a unidade abaixo. */
+export function FigureVisual({ value, unit }: { value: number; unit: string }) {
   return (
     <p className={styles.figure}>
-      <span className={styles.figureValue}>{value}</span>
+      <CountUp value={value} className={styles.figureValue} />
       <span className={styles.figureUnit}>{unit}</span>
     </p>
   );

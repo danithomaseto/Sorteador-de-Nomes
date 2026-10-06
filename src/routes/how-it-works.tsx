@@ -2,6 +2,9 @@ import { Link } from "react-router";
 import { ButtonLink } from "~/components/Button";
 import { cx } from "~/components/cx";
 import { DocLayout, FactList, type DocSection } from "~/components/layout/DocLayout";
+import { demoRounds } from "~/features/marketing/demoNames";
+import { LiveReels } from "~/features/marketing/LiveReels";
+import { ShuffleDemo } from "~/features/marketing/ShuffleDemo";
 import styles from "./content.module.css";
 import { pageMeta } from "~/utils/seo";
 
@@ -13,6 +16,9 @@ export function meta() {
     path: "/como-funciona",
   });
 }
+
+// Três roletas com um vencedor cada, para ilustrar a seção "As roletas".
+const REEL_ROUNDS = demoRounds(3, 1, 4, 29);
 
 const SECTIONS: readonly DocSection[] = [
   { id: "passo-a-passo", title: "Passo a passo" },
@@ -83,6 +89,7 @@ export default function HowItWorks() {
           aleatório passa por amostragem por rejeição, que elimina o pequeno viés que um simples
           resto de divisão criaria.
         </p>
+        <ShuffleDemo />
         <p>
           Por que não <code>Math.random()</code>? Ele produz números bem distribuídos, mas não é
           projetado para ser imprevisível: em alguns navegadores, observar poucos resultados permite
@@ -143,6 +150,7 @@ export default function HowItWorks() {
 
       <section aria-labelledby="roletas-titulo" id="roletas">
         <h2 id="roletas-titulo">As roletas</h2>
+        <LiveReels rounds={REEL_ROUNDS} size="tile" />
         <p>
           Os nomes que passam nas roletas são apenas visuais: os vencedores já foram definidos no
           momento do clique, e as roletas sempre param no resultado real. Com vários vencedores,

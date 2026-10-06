@@ -1,0 +1,184 @@
+/* O palco escuro do sorteio, com grão sutil, nos dois temas. */
+.stage {
+  --row: 2.1em;
+
+  position: relative;
+  display: grid;
+  gap: var(--space-5);
+  border-radius: var(--radius-xl);
+  background: var(--texture-grain), var(--color-stage);
+  background-blend-mode: soft-light;
+  color: var(--color-stage-text);
+}
+
+.hero {
+  padding: clamp(var(--space-5), 4vw, var(--space-8)) clamp(var(--space-4), 5vw, var(--space-9));
+  border: var(--border-width) solid var(--color-stage-border);
+}
+
+/* Recortes laterais do bilhete (só na versão grande). */
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: var(--color-page);
+  translate: 0 -50%;
+}
+
+.hero::before {
+  left: -0.625rem;
+}
+
+.hero::after {
+  right: -0.625rem;
+}
+
+.tile {
+  height: 100%;
+  grid-template-rows: auto 1fr;
+  align-items: center;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  container-type: inline-size;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-self: start;
+}
+
+.label {
+  font-size: var(--text-caption);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.meta,
+.caption {
+  font-size: var(--text-sm);
+  color: var(--color-stage-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.reels {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: clamp(var(--space-2), 1.2vw, var(--space-4));
+}
+
+/* Janela de cada roleta: 1 linha acima, as faixas dos vencedores, 1 linha abaixo. */
+.reel {
+  position: relative;
+  min-width: 0;
+  height: calc(var(--row) * (var(--rows) + 2));
+  overflow: hidden;
+  font-weight: var(--weight-bold);
+  font-stretch: var(--stretch-condensed);
+  text-align: center;
+  mask-image: linear-gradient(transparent, #000 35%, #000 65%, transparent);
+}
+
+.rows1 {
+  --rows: 1;
+}
+
+.rows2 {
+  --rows: 2;
+}
+
+.rows3 {
+  --rows: 3;
+}
+
+.hero .reel {
+  font-size: clamp(0.8125rem, 0.4rem + 1.1vw, 1.625rem);
+  mask-image: linear-gradient(transparent, #000 22%, #000 78%, transparent);
+}
+
+.tile .reel {
+  font-size: clamp(0.8125rem, 3.6cqi, 1.75rem);
+  mask-image: linear-gradient(transparent, #000 22%, #000 78%, transparent);
+}
+
+.band {
+  position: absolute;
+  inset-inline: 0;
+  height: calc(var(--row) - 6px);
+  border-block: 2px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  transition: background-color var(--duration-ui) var(--ease-standard);
+}
+
+.slot1 {
+  top: calc(var(--row) + 3px);
+}
+
+.slot2 {
+  top: calc(var(--row) * 2 + 3px);
+}
+
+.slot3 {
+  top: calc(var(--row) * 3 + 3px);
+}
+
+/* Seletores com o contêiner: listas de texto da página (ex.: "Como funciona") não interferem. */
+.reel .strip {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  will-change: transform;
+}
+
+.reel .row {
+  height: var(--row);
+  overflow: hidden;
+  padding-inline: 0.35em;
+  line-height: var(--row);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-stage-muted);
+}
+
+.landed .band {
+  background: var(--color-primary);
+}
+
+.landed .winner {
+  position: relative;
+  color: var(--color-on-primary);
+  animation: land 420ms var(--ease-standard);
+}
+
+@keyframes land {
+  from {
+    transform: scale(0.94);
+  }
+  55% {
+    transform: scale(1.04);
+  }
+}
+
+/* Telas estreitas: três roletas na versão grande, como o sorteio faria nessa largura. */
+@media (max-width: 559px) {
+  .hero .reel:nth-child(n + 4) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landed .winner {
+    animation: none;
+  }
+}

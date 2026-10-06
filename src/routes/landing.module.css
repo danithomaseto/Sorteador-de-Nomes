@@ -113,7 +113,6 @@
 .stepNumber {
   font-family: var(--font-serif);
   font-size: 2.5rem;
-  line-height: 1;
   color: var(--color-text-muted);
   font-variant-numeric: lining-nums;
 }
@@ -332,4 +331,67 @@
   .finalAction {
     grid-column: 9 / -1;
   }
+}
+
+/* Entrada do topo ao carregar: título, texto e palco sobem em sequência curta. */
+.kicker,
+.title,
+.heroFoot {
+  animation: rise 800ms var(--ease-enter) both;
+}
+
+.title {
+  animation-delay: 60ms;
+}
+
+.heroFoot {
+  animation-delay: 160ms;
+}
+
+.hero > figure {
+  animation: settle 1000ms var(--ease-enter) 240ms both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+}
+
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: translateY(2rem) scale(0.985);
+  }
+}
+
+/* Botão de sortear: o ícone "embaralha" ao passar o mouse. */
+.cta:hover svg {
+  animation: shuffle 560ms var(--ease-standard);
+}
+
+@keyframes shuffle {
+  30% {
+    transform: rotate(-14deg) translateX(-1px);
+  }
+  60% {
+    transform: rotate(10deg) translateX(1px);
+  }
+}
+
+/* Blocos do bento: elevação leve ao passar o mouse. */
+.tile {
+  transition:
+    transform var(--duration-ui) var(--ease-standard),
+    box-shadow var(--duration-ui) var(--ease-standard),
+    border-color var(--duration-ui) var(--ease-standard);
+}
+
+.tile:hover {
+  border-color: var(--color-border-strong);
+  box-shadow:
+    0 1px 2px rgb(27 26 23 / 0.04),
+    0 18px 40px -16px rgb(27 26 23 / 0.16);
+  transform: translateY(-2px);
 }

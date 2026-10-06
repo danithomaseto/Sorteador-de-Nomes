@@ -117,6 +117,26 @@ roletas com 2). Desaceleram longamente e param da esquerda para a direita, no m�
 primeira. As faixas se acendem quando cada roleta para; o resultado aparece no mesmo palco, em
 sequência curta (35 ms por item). A animação nunca decide nada: o resultado já está registrado.
 
+**Páginas de apresentação** (página inicial e "Como funciona"). Toda animação imita o sorteio e
+tem uma função:
+
+| Onde | O que acontece |
+|---|---|
+| Topo da página inicial | Roletas ao vivo: giram, param em cascata nos vencedores e trocam de rodada a cada ~6 s, continuando de onde pararam ("Rodada 2", "Rodada 3"…) |
+| Bento | Roletas menores, telão que sorteia um nome por vez ("Sorteando…" → "Parabéns!") e contagem do 50.000 |
+| Passos | Números rolam como num caça-níquel até 1, 2 e 3 |
+| Seções | Entrada suave ao rolar (700 ms, 20 px, em sequência de 70 ms) |
+| Como funciona › O método | Demonstração do Fisher–Yates com o gerador criptográfico real: a mira varre posições livres, os nomes trocam de lugar (FLIP) e as primeiras posições viram 1º, 2º e 3º; "Sortear de novo" repete |
+| Como funciona › sumário | Traço da seção atual desliza; clicar rola suavemente e move o foco |
+| Entre páginas | Esmaecer curto (View Transitions, onde o navegador suporta) |
+| Micro-interações | Ícone de sortear "embaralha" ao passar o mouse; blocos do bento sobem 2 px |
+
+Regras: o HTML pré-renderizado já mostra o estado final (sem JavaScript nada some); com "reduzir
+movimento", nada se move; laços param fora da tela e com a aba em segundo plano; só `transform` e
+`opacity` são animados; nenhum estilo embutido no HTML (a CSP não permite) — posições dinâmicas
+vão pelo CSSOM ou pela Web Animations API. Código em `utils/motion.ts` e
+`features/marketing/`.
+
 ## 9. Componentes
 
 | Componente | Estados |

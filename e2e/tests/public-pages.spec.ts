@@ -65,3 +65,27 @@ test("endereço inexistente mostra página amigável", async ({ page }) => {
   await page.goto("/nao-existe");
   await expect(page.getByRole("heading", { name: "Página não encontrada" })).toBeVisible();
 });
+
+test("sumário acompanha a rolagem até a última seção", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/como-funciona");
+  const toc = page.getByRole("navigation", { name: "Nesta página" });
+  const current = toc.locator('[aria-current="location"]');
+  await expect(current).toHaveText("Passo a passo");
+
+  await page.getByRole("heading", { name: "Garantias e limites" }).evaluate((heading) => {
+    window.scrollTo(0, heading.getBoundingClientRect().top + window.scrollY - 120);
+  });
+  await expect(current).toHaveText("Garantias e limites");
+
+  // No fim da página, a última seção fica marcada (ela nunca chega ao topo da tela).
+  await page.evaluate(() => {
+    window.scrollTo(0, document.documentElement.scrollHeight);
+  });
+  await expect(current).toHaveText("Seus dados");
+
+  await page.evaluate(() => {
+    window.scrollTo(0, 0);
+  });
+  await expect(current).toHaveText("Passo a passo");
+});

@@ -178,3 +178,55 @@ a:hover {
     background: #fff;
   }
 }
+
+/*
+ * Entrada suave ao rolar (ver utils/motion.ts). Só elementos abaixo da dobra recebem
+ * "reveal-pending"; sem JavaScript ou com "reduzir movimento", tudo aparece direto.
+ */
+.reveal-pending:not([data-reveal="stagger"]),
+[data-reveal="stagger"].reveal-pending > * {
+  opacity: 0;
+  transform: translateY(1.25rem);
+}
+
+.reveal-in:not([data-reveal="stagger"]),
+[data-reveal="stagger"].reveal-in > * {
+  transition:
+    opacity 700ms var(--ease-enter),
+    transform 700ms var(--ease-enter);
+}
+
+[data-reveal="stagger"].reveal-in > :nth-child(2) {
+  transition-delay: 70ms;
+}
+
+[data-reveal="stagger"].reveal-in > :nth-child(3) {
+  transition-delay: 140ms;
+}
+
+[data-reveal="stagger"].reveal-in > :nth-child(4) {
+  transition-delay: 210ms;
+}
+
+[data-reveal="stagger"].reveal-in > :nth-child(5) {
+  transition-delay: 280ms;
+}
+
+[data-reveal="stagger"].reveal-in > :nth-child(n + 6) {
+  transition-delay: 350ms;
+}
+
+/* Transição entre páginas (navegadores com View Transitions): um esmaecer curto. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 260ms;
+  animation-timing-function: var(--ease-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
