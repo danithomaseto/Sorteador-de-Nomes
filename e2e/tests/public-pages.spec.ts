@@ -89,3 +89,15 @@ test("sumário acompanha a rolagem até a última seção", async ({ page }) => 
   });
   await expect(current).toHaveText("Passo a passo");
 });
+
+test("rodapé credita o autor e leva ao Instagram em nova aba", async ({ page }) => {
+  await page.goto("/");
+  const footer = page.getByRole("contentinfo");
+  await expect(footer.getByText(/Sorteio360 · Daniel Thomaseto/)).toBeVisible();
+  const instagram = footer.getByRole("link", {
+    name: "Instagram de Daniel Thomaseto (abre em nova aba)",
+  });
+  await expect(instagram).toHaveAttribute("href", "https://www.instagram.com/danithomaseto/");
+  await expect(instagram).toHaveAttribute("target", "_blank");
+  await expect(instagram).toHaveAttribute("rel", /noopener/);
+});

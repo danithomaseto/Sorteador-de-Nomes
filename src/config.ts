@@ -1,6 +1,10 @@
 /** Nome do produto (ADR-016): trocar aqui basta para renomear a interface. */
 export const APP_NAME = "Sorteio360";
 
+/** Autor (crédito no rodapé) e perfil público. */
+export const AUTHOR_NAME = "Daniel Thomaseto";
+export const AUTHOR_INSTAGRAM = "https://www.instagram.com/danithomaseto/";
+
 export const PRIVACY_MESSAGE =
   "Seus dados ficam apenas no seu navegador, durante o sorteio. Não recebemos nem armazenamos sua lista de participantes ou seus resultados.";
 

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link, NavLink } from "react-router";
-import { APP_NAME, PRIVACY_MESSAGE } from "~/config";
+import { APP_NAME, AUTHOR_INSTAGRAM, AUTHOR_NAME, PRIVACY_MESSAGE } from "~/config";
 import { cx } from "../cx";
 import { Icon } from "../Icon";
 import { Logo } from "../Logo";
@@ -89,9 +89,21 @@ function SiteFooter({ container }: { container: string }) {
             </li>
           </ul>
         </nav>
-        <p className={styles.copy}>
-          © {new Date().getFullYear()} {APP_NAME}
-        </p>
+        <div className={styles.credits}>
+          <p>
+            © {new Date().getFullYear()} {APP_NAME} · {AUTHOR_NAME}
+          </p>
+          <a
+            href={AUTHOR_INSTAGRAM}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.social}
+            aria-label={`Instagram de ${AUTHOR_NAME} (abre em nova aba)`}
+            title="Instagram"
+          >
+            <Icon name="instagram" size={18} />
+          </a>
+        </div>
       </div>
     </footer>
   );

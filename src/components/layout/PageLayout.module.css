@@ -113,6 +113,30 @@
   margin-top: 2px;
 }
 
+.credits {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Ícone de rede social: alvo de 32 px (44 px em toque), discreto até receber hover ou foco. */
+.social {
+  display: inline-grid;
+  place-items: center;
+  width: var(--control-sm);
+  height: var(--control-sm);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  transition:
+    color var(--duration-micro) var(--ease-standard),
+    background-color var(--duration-micro) var(--ease-standard);
+}
+
+.social:hover {
+  background: var(--color-hover);
+  color: var(--color-text);
+}
+
 .footerLinks {
   display: flex;
   flex-wrap: wrap;
@@ -125,7 +149,7 @@
     align-items: center;
   }
 
-  .copy {
+  .credits {
     grid-column: 1 / -1;
   }
 }
